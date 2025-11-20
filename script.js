@@ -134,7 +134,7 @@ async function loadExistingResponsesByEmail(email) {
 async function loadExistingResponses() {
     if (!currentUser) return;
 
-    const docRef = db.collection("responses").doc(currentUser.uid);
+    const docRef = db.collection("responses_external").doc(currentUser.uid);
     const snap = await docRef.get();
 
     if (snap.exists) {
@@ -499,7 +499,7 @@ async function saveProgressToFirestore() {
     };
 
     try {
-        await db.collection("responses").doc(currentUser.uid).set(payload, { merge: true });
+        await db.collection("responses_external").doc(currentUser.uid).set(payload, { merge: true });
         console.log("Auto-saved progress");
     } catch (err) {
         console.error("Auto-save failed:", err);
@@ -664,7 +664,7 @@ async function submitForm() {
     try {
         console.log("Saving to Firestore:", currentUser.uid);
         console.log("SUBMIT ATTEMPT UID:", currentUser.uid);
-        await db.collection("responses").doc(currentUser.uid).set(payload);
+        await db.collection("responses_external").doc(currentUser.uid).set(payload);
         alert("Your responses have been saved!");
 
     } catch (error) {
