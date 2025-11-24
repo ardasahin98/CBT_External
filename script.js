@@ -734,3 +734,26 @@ function backToGoogle() {
     document.getElementById("email-page").style.display = "none";
     document.getElementById("login-page").style.display = "block";
 }
+
+function showQuizPage() {
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("email-page").style.display = "none";
+    document.getElementById("quiz-container").style.display = "block";
+}
+
+function showLoginPage() {
+    document.getElementById("quiz-container").style.display = "none";
+    document.getElementById("email-page").style.display = "none";
+    document.getElementById("login-page").style.display = "block";
+}
+
+function emailOnlyLogin() {
+    const email = document.getElementById("email-login").value;
+    if (!email) {
+        document.getElementById("email-error").style.visibility = "visible";
+        return;
+    }
+
+    currentUser = { uid: "local_" + email };
+    showQuizPage();  // <<--- switch pages
+}
