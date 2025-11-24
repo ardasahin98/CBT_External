@@ -726,23 +726,22 @@ function downloadExcel() {
 }
 
 function showEmailLogin() {
-    document.getElementById("login-page").style.display = "none";
-    document.getElementById("email-page").style.display = "block";
+    showPage("email-page");
 }
 
 function backToGoogle() {
-    document.getElementById("email-page").style.display = "none";
-    document.getElementById("login-page").style.display = "block";
+    showPage("login-page");
 }
 
 function showQuizPage() {
-    document.getElementById("login-page").style.display = "none";
-    document.getElementById("email-page").style.display = "none";
-    document.getElementById("quiz-container").style.display = "block";
+    showPage("quiz-container");
 }
 
 function showLoginPage() {
-    document.getElementById("quiz-container").style.display = "none";
-    document.getElementById("email-page").style.display = "none";
-    document.getElementById("login-page").style.display = "block";
+    showPage("login-page");
+}
+
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
 }
