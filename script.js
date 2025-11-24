@@ -724,3 +724,13 @@ function downloadExcel() {
     // Trigger download
     XLSX.writeFile(workbook, fileName);
 }
+
+function showEmailLogin() {
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("email-page").style.display = "block";
+}
+
+function backToGoogle() {
+    document.getElementById("email-page").style.display = "none";
+    document.getElementById("login-page").style.display = "block";
+}
