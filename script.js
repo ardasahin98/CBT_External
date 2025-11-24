@@ -746,14 +746,3 @@ function showLoginPage() {
     document.getElementById("email-page").style.display = "none";
     document.getElementById("login-page").style.display = "block";
 }
-
-function emailOnlyLogin() {
-    const email = document.getElementById("email-login").value;
-    if (!email) {
-        document.getElementById("email-error").style.visibility = "visible";
-        return;
-    }
-
-    currentUser = { uid: "local_" + email };
-    showQuizPage();  // <<--- switch pages
-}
