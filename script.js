@@ -354,7 +354,7 @@ function renderPage(index) {
         // ----- IMAGE UPDATE FUNCTION -----
         function updateStrainImage(qNum, testNum) {
             const strainFolder = document.getElementById(`strain_select_${qNum}`).value;
-            const imgPath = `/Figures_External/${strainFolder}/Test_Number_${testNum}.png`;
+            const imgPath = `Figures_External/${strainFolder}/Test_Number_${testNum}.png`;
 
             const imgEl = document.getElementById(`strain_image_${qNum}`);
             const msgEl = document.getElementById(`missing_image_${qNum}`);
