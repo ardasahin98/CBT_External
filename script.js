@@ -21,6 +21,25 @@ let cachedQuestions = [];
 let responses = {};
 
 
+// ------------------ NAME AUTOSAVE ------------------
+let nameSaveTimer = null;
+
+function attachNameAutosave() {
+    const el = document.getElementById("researcher-name");
+    if (!el) return;
+    if (el.dataset.autosaveAttached === "1") return;
+    el.dataset.autosaveAttached = "1";
+
+    el.addEventListener("input", () => {
+        clearTimeout(nameSaveTimer);
+        nameSaveTimer = setTimeout(() => saveProgressToFirestore(), 400);
+    });
+
+    el.addEventListener("blur", () => saveProgressToFirestore());
+    el.addEventListener("change", () => saveProgressToFirestore());
+}
+
+
 // ------------------ AUTH STATE LISTENER ------------------
 
 auth.onAuthStateChanged(async (user) => {
@@ -34,11 +53,14 @@ auth.onAuthStateChanged(async (user) => {
 
     // User is logged in
     currentUser = user;
+    currentUser.isEmailOnly = false; // keep provider logic consistent
     console.log("Logged in:", user.email, "UID:", user.uid);
 
     // Show quiz
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
+
+    attachNameAutosave();
 
     // Load saved responses FIRST
     await loadExistingResponses();
@@ -47,6 +69,9 @@ auth.onAuthStateChanged(async (user) => {
     if (cachedQuestions.length === 0) {
         await loadQuestions();
     }
+
+    // Save identity (email/provider/name) immediately without waiting for Next
+    await saveProgressToFirestore();
 });
 
 
@@ -90,7 +115,7 @@ async function emailOnlyLogin() {
     currentUser = {
         email: email,
         uid: generateFakeUID(),
-        isLocalUser: true
+        isEmailOnly: true   // <-- add this
     };
 
     console.log("Email-only login:", currentUser);
@@ -102,10 +127,15 @@ async function emailOnlyLogin() {
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
 
+    attachNameAutosave();
+
     // Load questions if not loaded yet
     if (cachedQuestions.length === 0) {
         await loadQuestions();
     }
+
+    // Save identity (email/provider/name) immediately without waiting for Next
+    await saveProgressToFirestore();
 }
 
 // Load previous email-only responses
@@ -493,7 +523,7 @@ async function saveProgressToFirestore() {
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email || "",
-        authProvider: currentUser.isEmailOnly ? "email" : "google",
+        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
         name: name,
         responses: responses,
         savedAt: new Date().toISOString()
@@ -657,7 +687,7 @@ async function submitForm() {
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email,
-        authProvider: currentUser.isEmailOnly ? "email" : "google",
+        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
         name: name,
         responses: responses,
         submittedAt: new Date().toISOString()
