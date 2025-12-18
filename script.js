@@ -138,30 +138,28 @@ async function emailOnlyLogin() {
     await saveProgressToFirestore();
 }
 
-// Load previous email-only responses
-async function loadExistingResponsesByEmail(email) {
-    const snap = await db
-        .collection("responses")
-        .where("email", "==", email)
-        .limit(1)
-        .get();
-
-    if (!snap.empty) {
-        const data = snap.docs[0].data();
-        responses = data.responses || {};
-
-        // reuse old uid to keep consistency
-        currentUser.uid = data.uid;
-
-        document.getElementById("researcher-name").value = data.name || "";
-        console.log("Loaded saved email-only responses.");
-    }
-}
-
 
 // ------------------ LOAD PREVIOUS RESPONSES ------------------
 
-// Load previous email-only responses (FIXED)
+// Google-auth users (added)
+async function loadExistingResponses() {
+    if (!currentUser) return;
+
+    const docRef = db.collection("responses_external").doc(currentUser.uid);
+    const snap = await docRef.get();
+
+    if (snap.exists) {
+        const data = snap.data();
+        responses = data.responses || {};
+        document.getElementById("researcher-name").value = data.name || "";
+        console.log("Loaded previous responses (google) from responses_external.");
+    } else {
+        responses = {};
+        console.log("No existing responses found (google).");
+    }
+}
+
+// Email-only users (kept single version)
 async function loadExistingResponsesByEmail(email) {
     const snap = await db
         .collection("responses_external")
@@ -441,28 +439,28 @@ function renderPage(index) {
             stddevInput.disabled = isDisabled;
         });
 
-    slider.addEventListener('input', () => {
-        sliderInput.value = slider.value;
-        plotBeta(question.questionNumber);
-    });
+        slider.addEventListener('input', () => {
+            sliderInput.value = slider.value;
+            plotBeta(question.questionNumber);
+        });
 
-    sliderInput.addEventListener('input', () => {
-        slider.value = sliderInput.value;
-        plotBeta(question.questionNumber);
-    });
+        sliderInput.addEventListener('input', () => {
+            slider.value = sliderInput.value;
+            plotBeta(question.questionNumber);
+        });
 
-    stddevInput.addEventListener('input', () => {
+        stddevInput.addEventListener('input', () => {
+            plotBeta(question.questionNumber);
+        });
+        stddevInput.addEventListener('input', () => {
+            const mean = parseFloat(slider.value);
+            const maxStd = getMaxStd(mean);
+            const enteredStd = parseFloat(stddevInput.value);
+            if (!isNaN(enteredStd) && enteredStd > maxStd) {
+                stddevInput.value = maxStd.toFixed(3);
+            }
+        });
         plotBeta(question.questionNumber);
-    });
-    stddevInput.addEventListener('input', () => {
-        const mean = parseFloat(slider.value);
-        const maxStd = getMaxStd(mean);
-        const enteredStd = parseFloat(stddevInput.value);
-        if (!isNaN(enteredStd) && enteredStd > maxStd) {
-            stddevInput.value = maxStd.toFixed(3);
-        }
-    });
-    plotBeta(question.questionNumber);
     } else {
         console.error(`Invalid page index: ${index}`);
     }
@@ -612,12 +610,13 @@ function plotBeta(questionNumber) {
             dtick: 0.1  // or 5 for finer ticks
         },
         yaxis: {
-                title: 'Density',
-                range: [0, Math.max(...y) * 1.1]
-            },
+            title: 'Density',
+            range: [0, Math.max(...y) * 1.1]
+        },
         legend: {
             title: {
-                    text: `Mean: ${mean.toFixed(2)} | Std: ${stddev.toFixed(2)}<br>Alpha: ${alpha.toFixed(2)} | Beta: ${beta.toFixed(2)}` },
+                text: `Mean: ${mean.toFixed(2)} | Std: ${stddev.toFixed(2)}<br>Alpha: ${alpha.toFixed(2)} | Beta: ${beta.toFixed(2)}`
+            },
             x: -0.3,
             y: -0.5
         },
