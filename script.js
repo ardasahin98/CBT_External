@@ -488,11 +488,12 @@ function getMaxStd(mean) {
 async function saveProgressToFirestore() {
     if (!currentUser) return;
 
-    const name = document.getElementById("researcher-name")?.value || "";
+    const name = document.getElementById("researcher-name")?.value?.trim() || "";
 
     const payload = {
         uid: currentUser.uid,
-        email: currentUser.email,
+        email: currentUser.email || "",
+        authProvider: currentUser.isEmailOnly ? "email" : "google",
         name: name,
         responses: responses,
         savedAt: new Date().toISOString()
@@ -656,6 +657,7 @@ async function submitForm() {
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email,
+        authProvider: currentUser.isEmailOnly ? "email" : "google",
         name: name,
         responses: responses,
         submittedAt: new Date().toISOString()
