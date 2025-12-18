@@ -756,7 +756,12 @@ function downloadExcel() {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Responses");
 
     // Generate file name
-    const fileName = `responses_${currentUser.uid}.xlsx`;
+    const safeName = (currentUser?.email || "unknown")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+    const fileName = `responses_${safeName}.xlsx`;
 
     // Trigger download
     XLSX.writeFile(workbook, fileName);
