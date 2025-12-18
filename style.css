@@ -66,6 +66,18 @@ textarea {
     transition: 0.2s;
 }
 
+.email-page button {
+    background-color: #337bff;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    margin: 8px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: 0.2s;
+}
+
 .navigation-buttons button:hover {
     background-color: #1c5de0;
 }
