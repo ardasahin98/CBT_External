@@ -18,6 +18,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.5/jstat.min.js"></script>
+
+    <style>
+        /* Make button design consistent without touching style.css */
+        .btn {
+            padding: 12px 20px;
+            font-size: 16px;
+            width: 260px;
+            cursor: pointer;
+        }
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+            width: 260px;
+            cursor: pointer;
+        }
+        .btn-link {
+            padding: 8px 12px;
+            font-size: 12px;
+            width: 260px;
+            background: #f2f2f2;
+            color: #c00;
+            cursor: pointer;
+        }
+        .input-wide {
+            margin-top: 20px;
+            padding: 10px;
+            width: 250px;
+        }
+    </style>
 </head>
 
 <body>
@@ -28,41 +57,40 @@
             <h1>Welcome to Cyclic Behavior Type Assessment Test</h1>
             <p>
                 The aim of this test is to gather responses from researchers to assess cyclic behavior 
-                type based on 16 cyclic test results.  
+                type based on 16 cyclic test results.
             </p>
-            <p>You need to log in using your Gmail account below.  
+            <p>You need to log in using your Gmail account below.
             If you do not have a Gmail account, click the button below.</p>
         </div>
 
         <div class="navigation-buttons" style="display:flex; flex-direction:column; align-items:center; gap:15px;">
 
             <!-- Primary Button: Google Login -->
-            <button onclick="googleLogin()" 
-                    style="padding:12px 20px; font-size:16px; width:260px;">
+            <button class="btn" onclick="googleLogin()">
                 Sign in with Google
             </button>
 
-            <!-- Secondary: Shows email form -->
-            <button onclick="showEmailLogin()" 
-                    style="padding:4px 10px; font-size:12px; width:180px; background:#f2f2f2; color:#c00">
+            <!-- Secondary: Shows email/password form -->
+            <button class="btn-link" onclick="showEmailLogin()">
                 I do not have a Gmail account
             </button>
 
         </div>
     </div>
 
-    <!-- EMAIL LOGIN PAGE (HIDDEN AT START) -->
+    <!-- EMAIL + PASSWORD LOGIN PAGE (HIDDEN AT START) -->
     <div id="email-page" class="page" style="text-align:center; margin-top:40px;">
         <h2>Email Login</h2>
 
-        <input type="email" id="email-login" placeholder="Enter your email"
-            style="margin-top:20px; padding:10px; width:250px;">
+        <input type="email" id="email-login" placeholder="Enter your email" class="input-wide">
+
+        <input type="password" id="password-login" placeholder="Enter your password (min 6 characters)" class="input-wide" style="margin-top:10px;">
 
         <div id="email-error"
-            style="height:18px; color:#c00; font-size:14px; margin-top:5px; visibility:hidden;">
+            style="height:18px; color:#c00; font-size:14px; margin-top:8px; visibility:hidden;">
         </div>
 
-        <button onclick="emailOnlyLogin()" style="padding:12px 20px; font-size:16px; width:260px;">
+        <button class="btn" onclick="emailOnlyLogin()">
             Continue
         </button>
 
@@ -77,16 +105,16 @@
             <div class="question-header">
                 <h1>Behavior Type Selection Quiz</h1>
                 <p>The structure of the website is as follows:</p>
-            <p>2- After entering your name, you will see 16 question designed same but only changing the test results.</p>
-            <p>3- In each test you will be seeing 4 plots. The upper left one is the strain-stress plots showing the loops. The upper right one is showing the stress paths in shear stress normalized by initial effective stress, tau/sv_0' vs. effective stress normalized by initial effective stress, sv'/sv_0'. The lower left one is showing the change of shear strain with time. Finally, lower right one is showing change in effective stress normalized by initial effective stress with time along with the a secondary axis on top shows the change in r_u.</p>
-            <p>4- Some additional information in the below table such as the laboratory conducted the test, strain level, the cycle presented and total number of cycles of presented. Other information such as Atterberg limits are not provided to keep the analyses as objective as possible.</p>
-            <p>5- In each test, above the plots you will see a dropdown menu allowing you to see different cycles corresponding to different strain levels. If the test is reached to the selected strain level, you will be able to see the results otherwise an error message will be seen on the screen. The final option is to see the last cycle of the test.</p>
-            <p>6- Below the plots, you will see three portions. The left portion asks you to provide a cyclic behavior type rating. This rating is not a deterministic classification but a beta distribution. In order to construct this distribution, you need assign a mean value changing from 0.01 to 0.99 which corresponds to clay-like and sand-like, respectively. You can either enter the value or use the slider to select your response. Secondly, you need to assign a standard deviation. Due to the limitations of the beta distribution two boundaries are limited by 0.02 and a maximum standard deviation which is changing by mean. The maximum standard deviation you can enter is automatically changing and presented in the lower part of the standard deviation entry. Your final option is to assess the test result as not usable by checking the "Data is not usable" option. We have added this option to eliminate some cyclic test results if we observe some problems with the test itself.</p>
-            <p>7- The middle portion shows a beta distribution changing with the mean and standard deviation entered by you. You can visualize the assigned cyclic behavior type distribution from here.</p>
-            <p>8- Finally, the right portion is a text box to enter your comments. It is very important for us to have detailed explanations here since we are trying to understand your thinking process. You can explain why you assigned your rating and based on which features you have considered.</p>
-            <p>9- When you complete the quiz you can submit your responses in the final page along with an option to create an Excel file of your responses. You have the option to complete a portion of the test and continue later on if you want to. Your responses will be saved and presented later on.</p>
-            <p>10- Thank you for your help on this research!</p>
-            <p>Please sign in with your Google account to begin or update your responses.</p>
+                <p>2- After entering your name, you will see 16 question designed same but only changing the test results.</p>
+                <p>3- In each test you will be seeing 4 plots. The upper left one is the strain-stress plots showing the loops. The upper right one is showing the stress paths in shear stress normalized by initial effective stress, tau/sv_0' vs. effective stress normalized by initial effective stress, sv'/sv_0'. The lower left one is showing the change of shear strain with time. Finally, lower right one is showing change in effective stress normalized by initial effective stress with time along with the a secondary axis on top shows the change in r_u.</p>
+                <p>4- Some additional information in the below table such as the laboratory conducted the test, strain level, the cycle presented and total number of cycles of presented. Other information such as Atterberg limits are not provided to keep the analyses as objective as possible.</p>
+                <p>5- In each test, above the plots you will see a dropdown menu allowing you to see different cycles corresponding to different strain levels. If the test is reached to the selected strain level, you will be able to see the results otherwise an error message will be seen on the screen. The final option is to see the last cycle of the test.</p>
+                <p>6- Below the plots, you will see three portions. The left portion asks you to provide a cyclic behavior type rating. This rating is not a deterministic classification but a beta distribution. In order to construct this distribution, you need assign a mean value changing from 0.01 to 0.99 which corresponds to clay-like and sand-like, respectively. You can either enter the value or use the slider to select your response. Secondly, you need to assign a standard deviation. Due to the limitations of the beta distribution two boundaries are limited by 0.02 and a maximum standard deviation which is changing by mean. The maximum standard deviation you can enter is automatically changing and presented in the lower part of the standard deviation entry. Your final option is to assess the test result as not usable by checking the "Data is not usable" option. We have added this option to eliminate some cyclic test results if we observe some problems with the test itself.</p>
+                <p>7- The middle portion shows a beta distribution changing with the mean and standard deviation entered by you. You can visualize the assigned cyclic behavior type distribution from here.</p>
+                <p>8- Finally, the right portion is a text box to enter your comments. It is very important for us to have detailed explanations here since we are trying to understand your thinking process. You can explain why you assigned your rating and based on which features you have considered.</p>
+                <p>9- When you complete the quiz you can submit your responses in the final page along with an option to create an Excel file of your responses. You have the option to complete a portion of the test and continue later on if you want to. Your responses will be saved and presented later on.</p>
+                <p>10- Thank you for your help on this research!</p>
+                <p>Please sign in with your Google account to begin or update your responses.</p>
             </div>
 
             <div class="question-header">
@@ -106,10 +134,10 @@
                 <h1>Quiz Completed!</h1>
                 <p>You can submit or review your answers.</p>
             </div>
-            <div class="navigation-buttons">
-                <button onclick="navigatePage(cachedQuestions.length - 1)">Back</button>
-                <button onclick="submitForm()">Submit</button>
-                <button onclick="downloadExcel()" class="submit-button" style="margin-top:20px;">
+            <div class="navigation-buttons" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                <button class="btn" onclick="navigatePage(cachedQuestions.length - 1)">Back</button>
+                <button class="btn" onclick="submitForm()">Submit</button>
+                <button class="btn" onclick="downloadExcel()" style="margin-top:10px;">
                     Create Excel File
                 </button>
             </div>
