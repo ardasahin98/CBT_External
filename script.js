@@ -53,6 +53,7 @@ auth.onAuthStateChanged(async (user) => {
 
     // User is logged in
     currentUser = user;
+    currentUser.isEmailOnly = false; // keep provider logic consistent
     console.log("Logged in:", user.email, "UID:", user.uid);
 
     // Show quiz
@@ -89,81 +90,78 @@ async function googleLogin() {
     }
 }
 
+// ------------------ EMAIL-ONLY LOGIN (NO AUTH) ------------------
 
-// ------------------ EMAIL + PASSWORD LOGIN ------------------
+function generateFakeUID() {
+    return "local_" + Math.random().toString(36).substr(2, 9) + Date.now();
+}
 
 async function emailOnlyLogin() {
-    // (kept function name to avoid changing HTML onclicks)
     const email = document.getElementById("email-login").value.trim();
-    const password = (document.getElementById("password-login")?.value || "").trim();
     const errorDiv = document.getElementById("email-error");
 
     // Basic email validation
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(email)) {
-        if (errorDiv) {
-            errorDiv.textContent = "Please enter a valid email address.";
-            errorDiv.style.visibility = "visible";
-        }
+        errorDiv.textContent = "Please enter a valid email address.";
+        errorDiv.style.visibility = "visible";
         return;
+    } else {
+        errorDiv.style.visibility = "hidden";
     }
 
-    if (!password || password.length < 6) {
-        if (errorDiv) {
-            errorDiv.textContent = "Please enter a password (at least 6 characters).";
-            errorDiv.style.visibility = "visible";
-        }
-        return;
+    // Create local-only user object
+    currentUser = {
+        email: email,
+        uid: generateFakeUID(),
+        isEmailOnly: true   // <-- add this
+    };
+
+    console.log("Email-only login:", currentUser);
+
+    // Load previous responses
+    await loadExistingResponsesByEmail(email);
+
+    // SHOW QUIZ
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("quiz-container").style.display = "block";
+
+    attachNameAutosave();
+
+    // Load questions if not loaded yet
+    if (cachedQuestions.length === 0) {
+        await loadQuestions();
     }
 
-    if (errorDiv) errorDiv.style.visibility = "hidden";
+    // Save identity (email/provider/name) immediately without waiting for Next
+    await saveProgressToFirestore();
+}
 
-    try {
-        // Try sign-in first
-        await auth.signInWithEmailAndPassword(email, password);
-        console.log("Email/password sign-in successful:", email);
+// Load previous email-only responses
+async function loadExistingResponsesByEmail(email) {
+    const snap = await db
+        .collection("responses")
+        .where("email", "==", email)
+        .limit(1)
+        .get();
 
-    } catch (err) {
-        // If user doesn't exist, create account
-        if (err && err.code === "auth/user-not-found") {
-            try {
-                await auth.createUserWithEmailAndPassword(email, password);
-                console.log("Email/password account created:", email);
-            } catch (createErr) {
-                console.error("Email/password create error:", createErr);
-                alert("Email/password signup failed: " + (createErr?.message || createErr));
-            }
-        } else {
-            console.error("Email/password sign-in error:", err);
-            alert("Email/password login failed: " + (err?.message || err));
-        }
+    if (!snap.empty) {
+        const data = snap.docs[0].data();
+        responses = data.responses || {};
+
+        // reuse old uid to keep consistency
+        currentUser.uid = data.uid;
+
+        document.getElementById("researcher-name").value = data.name || "";
+        console.log("Loaded saved email-only responses.");
     }
 }
 
 
 // ------------------ LOAD PREVIOUS RESPONSES ------------------
 
-async function loadExistingResponses() {
-    if (!currentUser) return;
-
-    const docRef = db.collection("responses_external").doc(currentUser.uid);
-    const snap = await docRef.get();
-
-    if (snap.exists) {
-        responses = snap.data().responses || {};
-        const savedName = snap.data().name || "";
-        document.getElementById("researcher-name").value = savedName;
-
-        console.log("Loaded previous responses");
-    } else {
-        responses = {};
-        console.log("No existing responses found");
-    }
-}
-
-
-// (Optional helper; not required for auth mode, but kept)
+// Load previous email-only responses (FIXED)
 async function loadExistingResponsesByEmail(email) {
     const snap = await db
         .collection("responses_external")
@@ -174,11 +172,16 @@ async function loadExistingResponsesByEmail(email) {
     if (!snap.empty) {
         const doc = snap.docs[0];
         const data = doc.data();
+
         responses = data.responses || {};
+
+        // reuse the existing document ID so we keep writing to the same place
+        currentUser.uid = doc.id;
+
         document.getElementById("researcher-name").value = data.name || "";
-        console.log("Loaded saved responses by email.");
+        console.log("Loaded saved email-only responses from responses_external.");
     } else {
-        console.log("No saved responses found for this email.");
+        console.log("No saved email-only responses found for this email.");
     }
 }
 
@@ -438,28 +441,28 @@ function renderPage(index) {
             stddevInput.disabled = isDisabled;
         });
 
-        slider.addEventListener('input', () => {
-            sliderInput.value = slider.value;
-            plotBeta(question.questionNumber);
-        });
-
-        sliderInput.addEventListener('input', () => {
-            slider.value = sliderInput.value;
-            plotBeta(question.questionNumber);
-        });
-
-        stddevInput.addEventListener('input', () => {
-            plotBeta(question.questionNumber);
-        });
-        stddevInput.addEventListener('input', () => {
-            const mean = parseFloat(slider.value);
-            const maxStd = getMaxStd(mean);
-            const enteredStd = parseFloat(stddevInput.value);
-            if (!isNaN(enteredStd) && enteredStd > maxStd) {
-                stddevInput.value = maxStd.toFixed(3);
-            }
-        });
+    slider.addEventListener('input', () => {
+        sliderInput.value = slider.value;
         plotBeta(question.questionNumber);
+    });
+
+    sliderInput.addEventListener('input', () => {
+        slider.value = sliderInput.value;
+        plotBeta(question.questionNumber);
+    });
+
+    stddevInput.addEventListener('input', () => {
+        plotBeta(question.questionNumber);
+    });
+    stddevInput.addEventListener('input', () => {
+        const mean = parseFloat(slider.value);
+        const maxStd = getMaxStd(mean);
+        const enteredStd = parseFloat(stddevInput.value);
+        if (!isNaN(enteredStd) && enteredStd > maxStd) {
+            stddevInput.value = maxStd.toFixed(3);
+        }
+    });
+    plotBeta(question.questionNumber);
     } else {
         console.error(`Invalid page index: ${index}`);
     }
@@ -523,13 +526,10 @@ async function saveProgressToFirestore() {
 
     const name = document.getElementById("researcher-name")?.value?.trim() || "";
 
-    const providerIds = (currentUser.providerData || []).map(p => p.providerId);
-    const authProvider = providerIds.includes("google.com") ? "google" : "password";
-
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email || "",
-        authProvider: authProvider,
+        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
         name: name,
         responses: responses,
         savedAt: new Date().toISOString()
@@ -556,6 +556,7 @@ function plotBeta(questionNumber) {
     const stddev = Math.min(userStd, maxStd);
 
     if (isNaN(mean) || isNaN(stddev) || stddev <= 0 || mean <= 0 || mean >= 1) {
+        // alert("Please provide a valid mean (0–1) and a positive standard deviation.");
         return;
     }
     
@@ -589,7 +590,7 @@ function plotBeta(questionNumber) {
     for (let i = 0; i <= 1000; i++) {
         const xi = i / 1000;
         const yi = jStat.beta.pdf(xi, alpha, beta);
-        x.push(xi);
+        x.push(xi);  // convert to percentage for plotting on 0–100 scale
         y.push(yi);
     }
 
@@ -608,24 +609,21 @@ function plotBeta(questionNumber) {
             range: [-0.05, 1.05],
             tickmode: 'linear',
             tick0: 0,
-            dtick: 0.1
+            dtick: 0.1  // or 5 for finer ticks
         },
         yaxis: {
-            title: 'Density',
-            range: [0, Math.max(...y) * 1.1]
-        },
+                title: 'Density',
+                range: [0, Math.max(...y) * 1.1]
+            },
         legend: {
             title: {
-                text: `Mean: ${mean.toFixed(2)} | Std: ${stddev.toFixed(2)}<br>Alpha: ${alpha.toFixed(2)} | Beta: ${beta.toFixed(2)}`
-            },
+                    text: `Mean: ${mean.toFixed(2)} | Std: ${stddev.toFixed(2)}<br>Alpha: ${alpha.toFixed(2)} | Beta: ${beta.toFixed(2)}` },
             x: -0.3,
             y: -0.5
         },
         showlegend: true
     });
 }
-
-
 // ------------------ SAVE & RESTORE ANSWERS ------------------
 
 function updateSliderVisibility(q) {
@@ -681,7 +679,6 @@ function loadSavedAnswer(q) {
     document.getElementById(`comments_${q}`).value = r.comments || "";
 }
 
-
 // ------------------ SUBMIT TO FIRESTORE ------------------
 
 async function submitForm() {
@@ -693,13 +690,10 @@ async function submitForm() {
 
     const name = document.getElementById("researcher-name").value.trim();
 
-    const providerIds = (currentUser.providerData || []).map(p => p.providerId);
-    const authProvider = providerIds.includes("google.com") ? "google" : "password";
-
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email,
-        authProvider: authProvider,
+        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
         name: name,
         responses: responses,
         submittedAt: new Date().toISOString()
