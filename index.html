@@ -9,18 +9,17 @@
     <link rel="icon" type="image/png" href="Figures_External/favicon.png">
 
     <!-- Firebase SDKs -->
-    <!-- Firebase v8 Compatible SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.5/jstat.min.js"></script>
 
+    <!-- Consistent button styling -->
     <style>
-        /* Make button design consistent without touching style.css */
         .btn {
             padding: 12px 20px;
             font-size: 16px;
@@ -28,17 +27,18 @@
             cursor: pointer;
         }
         .btn-small {
-            padding: 8px 12px;
+            padding: 6px 10px;
             font-size: 12px;
             width: 260px;
             cursor: pointer;
         }
         .btn-link {
-            padding: 8px 12px;
+            padding: 6px 10px;
             font-size: 12px;
             width: 260px;
             background: #f2f2f2;
             color: #c00;
+            border: none;
             cursor: pointer;
         }
         .input-wide {
@@ -70,7 +70,7 @@
                 Sign in with Google
             </button>
 
-            <!-- Secondary: Shows email/password form -->
+            <!-- Small secondary button -->
             <button class="btn-link" onclick="showEmailLogin()">
                 I do not have a Gmail account
             </button>
@@ -78,18 +78,22 @@
         </div>
     </div>
 
-    <!-- EMAIL + PASSWORD LOGIN PAGE (HIDDEN AT START) -->
+    <!-- EMAIL + PASSWORD LOGIN PAGE -->
     <div id="email-page" class="page" style="text-align:center; margin-top:40px;">
         <h2>Email Login</h2>
 
         <input type="email" id="email-login" placeholder="Enter your email" class="input-wide">
 
-        <input type="password" id="password-login" placeholder="Enter your password (min 6 characters)" class="input-wide" style="margin-top:10px;">
+        <input type="password" id="password-login"
+               placeholder="Enter your password (min 6 characters)"
+               class="input-wide"
+               style="margin-top:10px;">
 
         <div id="email-error"
-            style="height:18px; color:#c00; font-size:14px; margin-top:8px; visibility:hidden;">
+             style="height:18px; color:#c00; font-size:14px; margin-top:8px; visibility:hidden;">
         </div>
 
+        <!-- Continue button is PRIMARY and consistent -->
         <button class="btn" onclick="emailOnlyLogin()">
             Continue
         </button>
@@ -99,7 +103,7 @@
         </p>
     </div>
 
-    <!-- QUIZ PAGES (UNCHANGED) -->
+    <!-- QUIZ PAGES -->
     <div id="quiz-container" class="page">
         <div class="page" id="page-1">
             <div class="question-header">
@@ -123,7 +127,7 @@
             </div>
 
             <div class="navigation-buttons">
-                <button onclick="navigatePage(0)">Next</button>
+                <button class="btn" onclick="navigatePage(0)">Next</button>
             </div>
         </div>
 
@@ -137,9 +141,7 @@
             <div class="navigation-buttons" style="display:flex; flex-direction:column; align-items:center; gap:10px;">
                 <button class="btn" onclick="navigatePage(cachedQuestions.length - 1)">Back</button>
                 <button class="btn" onclick="submitForm()">Submit</button>
-                <button class="btn" onclick="downloadExcel()" style="margin-top:10px;">
-                    Create Excel File
-                </button>
+                <button class="btn" onclick="downloadExcel()">Create Excel File</button>
             </div>
         </div>
     </div>
