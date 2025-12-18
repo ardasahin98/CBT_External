@@ -161,21 +161,27 @@ async function loadExistingResponsesByEmail(email) {
 
 // ------------------ LOAD PREVIOUS RESPONSES ------------------
 
-async function loadExistingResponses() {
-    if (!currentUser) return;
+// Load previous email-only responses (FIXED)
+async function loadExistingResponsesByEmail(email) {
+    const snap = await db
+        .collection("responses_external")
+        .where("email", "==", email)
+        .limit(1)
+        .get();
 
-    const docRef = db.collection("responses_external").doc(currentUser.uid);
-    const snap = await docRef.get();
+    if (!snap.empty) {
+        const doc = snap.docs[0];
+        const data = doc.data();
 
-    if (snap.exists) {
-        responses = snap.data().responses || {};
-        const savedName = snap.data().name || "";
-        document.getElementById("researcher-name").value = savedName;
+        responses = data.responses || {};
 
-        console.log("Loaded previous responses");
+        // reuse the existing document ID so we keep writing to the same place
+        currentUser.uid = doc.id;
+
+        document.getElementById("researcher-name").value = data.name || "";
+        console.log("Loaded saved email-only responses from responses_external.");
     } else {
-        responses = {};
-        console.log("No existing responses found");
+        console.log("No saved email-only responses found for this email.");
     }
 }
 
