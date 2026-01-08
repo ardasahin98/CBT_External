@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tutorial</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="script.js"></script>
 </head>
 <body>
 
@@ -120,85 +121,6 @@
   </div>
 
 </div>
-
-<script>
-    document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
-
-            const wrap = btn.closest(".hotspot-wrap");
-            const popover = btn.nextElementSibling;
-            const container = btn.closest(".tutorial-image-container");
-
-            const willOpen = !popover.classList.contains("open");
-
-            popover.classList.toggle("open");
-            wrap.classList.toggle("active", willOpen);
-
-            if (!willOpen) return;
-
-            // Make it measurable
-            popover.style.visibility = "hidden";
-            popover.style.display = "block";
-
-            const containerRect = container.getBoundingClientRect();
-            const btnRect = btn.getBoundingClientRect();
-
-            const gap = 36;  // left/right gap from button
-            const pad = 10;  // padding from container edges
-            const minW = 160;
-
-            // ---------- Horizontal clamp (open right or left) ----------
-            const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
-            const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
-
-            const openRight = maxRight >= minW || maxRight >= maxLeft;
-
-            popover.style.left = openRight ? `${gap}px` : "auto";
-            popover.style.right = openRight ? "auto" : `${gap}px`;
-
-            const maxW = Math.max(minW, Math.floor(openRight ? maxRight : maxLeft));
-            popover.style.maxWidth = `${maxW}px`;
-
-            // Reset vertical position first
-            popover.style.top = "0px";
-
-            // ---------- Vertical clamp (keep inside container) ----------
-            // Measure after width + side set
-            const popRect = popover.getBoundingClientRect();
-
-            // How much it overflows bottom/top (in pixels)
-            const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
-            const overflowTop = (containerRect.top + pad) - popRect.top;
-
-            let topShift = 0;
-
-            if (overflowBottom > 0) topShift -= overflowBottom; // move up
-            if (overflowTop > 0) topShift += overflowTop;       // move down
-
-            if (topShift !== 0) {
-            popover.style.top = `${topShift}px`;
-            }
-
-            // Show normally
-            popover.style.visibility = "visible";
-            popover.style.display = "";
-        });
-    });
-
-    // Close all popovers when clicking anywhere else
-    document.addEventListener("click", () => {
-    document.querySelectorAll(".tutorial-popover.open").forEach(popover => {
-        popover.classList.remove("open");
-        popover.closest(".hotspot-wrap").classList.remove("active");
-    });
-    });
-
-  function exitTutorial() {
-    sessionStorage.setItem("returnToNamePage", "1");
-    window.location.href = "index.html";
-  }
-</script>
 
 </body>
 </html>

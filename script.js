@@ -242,8 +242,23 @@ function renderPage(index) {
         const questionDiv = document.createElement('div');
         questionDiv.className = 'page active dynamic-question';
 
+
         questionDiv.innerHTML = `
-            <div class="question-wrapper">
+            <div class="question-wrapper" style="position: relative;">
+
+                <!-- Tutorial access (top-right) -->
+                <button
+                    class="tutorial-btn"
+                    type="button"
+                    onclick="openTutorial()"
+                    style="
+                        position: absolute;
+                        top: 15px;
+                        right: 20px;
+                        z-index: 5;
+                    ">
+                    Tutorial
+                </button>
 
                 <div class="question-header">
                     <h2>Question ${question.questionNumber}/16</h2>
@@ -801,22 +816,6 @@ function showPage(pageId) {
     document.getElementById(pageId).classList.add('active');
 }
 
-function openTutorial() {
-    // Preserve session for email-only users (google users stay signed in via Firebase)
-    try {
-        if (currentUser?.isEmailOnly && currentUser?.email) {
-            localStorage.setItem("emailOnlySession", JSON.stringify({
-                email: currentUser.email,
-                uid: currentUser.uid || null
-            }));
-        }
-    } catch (e) {
-        console.warn("Could not save email-only session:", e);
-    }
-
-    window.location.href = "tutorial.html";
-}
-
 async function autoResumeEmailOnlySession() {
     // If Firebase user exists, do nothing (Google session will handle it in onAuthStateChanged)
     if (auth?.currentUser) return;
@@ -857,3 +856,110 @@ async function autoResumeEmailOnlySession() {
 
     await saveProgressToFirestore();
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+
+            const wrap = btn.closest(".hotspot-wrap");
+            const popover = btn.nextElementSibling;
+            const container = btn.closest(".tutorial-image-container");
+
+            const willOpen = !popover.classList.contains("open");
+
+            popover.classList.toggle("open");
+            wrap.classList.toggle("active", willOpen);
+
+            if (!willOpen) return;
+
+            popover.style.visibility = "hidden";
+            popover.style.display = "block";
+
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+
+            const gap = 36;
+            const pad = 10;
+            const minW = 160;
+
+            const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
+            const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
+
+            const openRight = maxRight >= minW || maxRight >= maxLeft;
+
+            popover.style.left = openRight ? `${gap}px` : "auto";
+            popover.style.right = openRight ? "auto" : `${gap}px`;
+            popover.style.maxWidth = `${Math.max(minW, Math.floor(openRight ? maxRight : maxLeft))}px`;
+
+            popover.style.top = "0px";
+
+            const popRect = popover.getBoundingClientRect();
+            const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
+            const overflowTop = (containerRect.top + pad) - popRect.top;
+
+            if (overflowBottom > 0) popover.style.top = `${-overflowBottom}px`;
+            if (overflowTop > 0) popover.style.top = `${overflowTop}px`;
+
+            popover.style.visibility = "visible";
+            popover.style.display = "";
+        });
+    });
+
+    document.addEventListener("click", () => {
+        document.querySelectorAll(".tutorial-popover.open").forEach(p => {
+            p.classList.remove("open");
+            p.closest(".hotspot-wrap").classList.remove("active");
+        });
+    });
+});
+
+// Close all popovers when clicking anywhere else
+document.addEventListener("click", () => {
+document.querySelectorAll(".tutorial-popover.open").forEach(popover => {
+    popover.classList.remove("open");
+    popover.closest(".hotspot-wrap").classList.remove("active");
+});
+});
+
+function exitTutorial() {
+    const returnPageId = sessionStorage.getItem("tutorialReturnPage");
+    sessionStorage.removeItem("tutorialReturnPage");
+
+    window.location.href = "index.html";
+
+    if (returnPageId) {
+        sessionStorage.setItem("restorePageAfterTutorial", returnPageId);
+    }
+}
+
+function openTutorial() {
+    // store current page
+    const activePage = document.querySelector(".page.active");
+    if (activePage && activePage.id) {
+        sessionStorage.setItem("tutorialReturnPage", activePage.id);
+    }
+
+    // preserve email-only session
+    try {
+        if (currentUser?.isEmailOnly && currentUser?.email) {
+            localStorage.setItem("emailOnlySession", JSON.stringify({
+                email: currentUser.email,
+                uid: currentUser.uid || null
+            }));
+        }
+    } catch (e) {}
+
+    window.location.href = "tutorial.html";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const restoreId = sessionStorage.getItem("restorePageAfterTutorial");
+    if (restoreId) {
+        sessionStorage.removeItem("restorePageAfterTutorial");
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        const page = document.getElementById(restoreId);
+        if (page) page.classList.add("active");
+    }
+});
