@@ -58,9 +58,19 @@ auth.onAuthStateChanged(async (user) => {
     if (!user) {
     console.log("Not logged in");
 
-    // If we're restoring from tutorial, don't flash the login page.
     if (document.documentElement.classList.contains("restoring")) {
         showRestoreOverlay();
+
+        // ✅ fallback: if no auth user appears shortly, show login page
+        setTimeout(() => {
+            if (!auth?.currentUser) {
+                document.documentElement.classList.remove("restoring");
+                hideRestoreOverlay();
+                document.getElementById("login-page").style.display = "block";
+                document.getElementById("quiz-container").style.display = "none";
+            }
+        }, 1200);
+
         return;
     }
 
@@ -89,6 +99,8 @@ auth.onAuthStateChanged(async (user) => {
 
     // Save identity (email/provider/name) immediately without waiting for Next
     await saveProgressToFirestore();
+    hideRestoreOverlay();
+    document.documentElement.classList.remove("restoring");
 });
 
 
