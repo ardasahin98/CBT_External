@@ -88,7 +88,7 @@
             <button class="tutorial-hotspot" type="button">i</button>
                 <div class="tutorial-popover">
                 <div class="popover-text">
-                    This part of the website is for you to assign a cyclic behavior type as a Beta distribution. By changing the slider or current value, you can arrange the mean of the distribution and also standard deviation can be arranged by changing the standard deviation area. Standard deviation is bounded by a maximum value due to its definition and this value is presented below the standard deviation text area. If you believe this test is not usable in any reason including but not limited to test being terminated immaturely and measurement errors, you can mark "Data is not usable" checkbox to indicate it. 
+                    This part of the website is for you to assign a cyclic behavior type as a Beta distribution. By changing the slider or current value, you can arrange the mean. Desired standard deviation can be assigned but it should noted that it is bounded by a maximum value due to its definition and this value is presented below the standard deviation text area. If you believe this test is not usable in any reason including but not limited to test being terminated immaturely and measurement errors, you can mark "Data is not usable" checkbox to indicate it. 
                 </div>
             </div>
         </div>
@@ -123,52 +123,67 @@
 
 <script>
     document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-        e.stopPropagation();
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
 
-        const wrap = btn.closest(".hotspot-wrap");
-        const popover = btn.nextElementSibling;
-        const container = btn.closest(".tutorial-image-container");
+            const wrap = btn.closest(".hotspot-wrap");
+            const popover = btn.nextElementSibling;
+            const container = btn.closest(".tutorial-image-container");
 
-        // Toggle
-        const willOpen = !popover.classList.contains("open");
+            const willOpen = !popover.classList.contains("open");
 
-        // Close this one
-        popover.classList.toggle("open");
-        wrap.classList.toggle("active", willOpen);
+            popover.classList.toggle("open");
+            wrap.classList.toggle("active", willOpen);
 
-        if (!willOpen) return;
+            if (!willOpen) return;
 
-        // ---- Keep popover inside container ----
-        // Make it measurable
-        popover.style.visibility = "hidden";
-        popover.style.display = "block";
+            // Make it measurable
+            popover.style.visibility = "hidden";
+            popover.style.display = "block";
 
-        const containerRect = container.getBoundingClientRect();
-        const btnRect = btn.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
 
-        const gap = 36;     // distance from button
-        const pad = 10;     // inner padding from container edge
+            const gap = 36;  // left/right gap from button
+            const pad = 10;  // padding from container edges
+            const minW = 160;
 
-        // Max width available to the right of the button
-        const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
-        // Max width available to the left of the button
-        const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
+            // ---------- Horizontal clamp (open right or left) ----------
+            const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
+            const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
 
-        // Choose side based on available space
-        const openRight = maxRight >= 160 || maxRight >= maxLeft; // 160 = minimum usable width
+            const openRight = maxRight >= minW || maxRight >= maxLeft;
 
-        // Set side + max width
-        popover.style.left = openRight ? `${gap}px` : "auto";
-        popover.style.right = openRight ? "auto" : `${gap}px`;
+            popover.style.left = openRight ? `${gap}px` : "auto";
+            popover.style.right = openRight ? "auto" : `${gap}px`;
 
-        const maxW = Math.max(160, Math.floor(openRight ? maxRight : maxLeft));
-        popover.style.maxWidth = `${maxW}px`;
+            const maxW = Math.max(minW, Math.floor(openRight ? maxRight : maxLeft));
+            popover.style.maxWidth = `${maxW}px`;
 
-        // Now show it normally
-        popover.style.visibility = "visible";
-        popover.style.display = "";
-    });
+            // Reset vertical position first
+            popover.style.top = "0px";
+
+            // ---------- Vertical clamp (keep inside container) ----------
+            // Measure after width + side set
+            const popRect = popover.getBoundingClientRect();
+
+            // How much it overflows bottom/top (in pixels)
+            const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
+            const overflowTop = (containerRect.top + pad) - popRect.top;
+
+            let topShift = 0;
+
+            if (overflowBottom > 0) topShift -= overflowBottom; // move up
+            if (overflowTop > 0) topShift += overflowTop;       // move down
+
+            if (topShift !== 0) {
+            popover.style.top = `${topShift}px`;
+            }
+
+            // Show normally
+            popover.style.visibility = "visible";
+            popover.style.display = "";
+        });
     });
 
     // Close all popovers when clicking anywhere else
