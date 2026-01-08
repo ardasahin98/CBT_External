@@ -310,3 +310,19 @@ textarea {
 .exit-tutorial-btn:hover {
     background-color: #1c5de0;
 }
+
+.restore-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.95);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.restore-overlay-box{
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  color: #333;
+}

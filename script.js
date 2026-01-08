@@ -282,8 +282,9 @@ function renderPage(index) {
                         Go to First Question
                     </button>
 
-                    <button onclick="goToPage(${question.questionNumber}, ${index - 1})"
-                            ${index === 0 ? "disabled" : ""}>Back</button>
+                    <button onclick="goToPage(${question.questionNumber}, ${index === 0 ? -1 : index - 1})">
+                    Back
+                    </button>
 
                     <button onclick="goToPage(${question.questionNumber},
                             ${index === cachedQuestions.length - 1 ? -2 : index + 1})">
@@ -393,8 +394,9 @@ function renderPage(index) {
 
                 <!-- Bottom navigation -->
                 <div class="navigation-buttons" style="margin-top:10px;">
-                    <button onclick="goToPage(${question.questionNumber}); navigatePage(${index - 1})"
-                            ${index === 0 ? "disabled" : ""}>Back</button>
+                    <button onclick="goToPage(${question.questionNumber}, ${index === 0 ? -1 : index - 1})">
+                        Back
+                    </button>
 
                     <button onclick="goToPage(${question.questionNumber}, 
                             ${index === cachedQuestions.length - 1 ? -2 : index + 1})">
@@ -899,7 +901,7 @@ function exitTutorial() {
 // restore page AFTER returning from tutorial
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = sessionStorage.getItem("tutorialReturnIndex");
-  if (saved === null) return;
+  if (saved !== null) showRestoreOverlay();
 
   // Let loadQuestions() handle restoration
   if (cachedQuestions.length === 0) {
@@ -910,3 +912,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   sessionStorage.removeItem("tutorialReturnIndex");
 });
+
+function showRestoreOverlay() {
+  const el = document.getElementById("restore-overlay");
+  if (el) el.style.display = "flex";
+}
+
+function hideRestoreOverlay() {
+  const el = document.getElementById("restore-overlay");
+  if (el) el.style.display = "none";
+}
