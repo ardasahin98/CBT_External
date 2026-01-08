@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="tutorial-wrapper">
+    <div class="question-header" style="margin-bottom: 15px;">
+      <h1>Website Tutorial</h1>
+      <p>Click the blue “i” icons to learn what each part does.</p>
+    </div>
+
+    <div class="tutorial-image-container" id="tutorialImageWrap">
+      <!-- Replace this image path with your real tutorial screenshot -->
+      <img src="Figures_External/tutorial_example.png" alt="Tutorial Example" />
+
+      <!-- Hotspots (positioned in % so they scale with the image) -->
+      <button
+        class="tutorial-hotspot"
+        style="top: 12%; left: 10%;"
+        data-title="Login"
+        data-text="This is where you sign in using Google or email-only login."
+        aria-label="Info: Login"
+      >i</button>
+
+      <button
+        class="tutorial-hotspot"
+        style="top: 35%; left: 70%;"
+        data-title="Strain selector"
+        data-text="Use this dropdown to switch between strain levels (3%, 4%, 5%, 6%, Last Cycle)."
+        aria-label="Info: Strain selector"
+      >i</button>
+
+      <button
+        class="tutorial-hotspot"
+        style="top: 72%; left: 18%;"
+        data-title="Behavior slider"
+        data-text="Set the CBT mean using the slider. You can also mark data as not usable."
+        aria-label="Info: Behavior slider"
+      >i</button>
+    </div>
+
+    <div class="tutorial-actions">
+      <button class="exit-tutorial-btn" type="button" onclick="exitTutorial()">
+        Exit Tutorial
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="tutorial-modal-overlay" id="tutorialOverlay" role="dialog" aria-modal="true">
+    <div class="tutorial-modal" id="tutorialModal">
+      <button class="tutorial-modal-close" type="button" id="tutorialCloseBtn" aria-label="Close">✕</button>
+      <h2 id="tutorialModalTitle" style="margin: 6px 0 10px 0;"></h2>
+      <div id="tutorialModalText" style="font-size: 16px; line-height: 1.5;"></div>
+    </div>
+  </div>
+
+  <script>
+    const overlay = document.getElementById("tutorialOverlay");
+    const modal = document.getElementById("tutorialModal");
+    const closeBtn = document.getElementById("tutorialCloseBtn");
+    const titleEl = document.getElementById("tutorialModalTitle");
+    const textEl = document.getElementById("tutorialModalText");
+
+    function openModal(title, text) {
+      titleEl.textContent = title || "Info";
+      textEl.textContent = text || "";
+      overlay.style.display = "flex";
+    }
+
+    function closeModal() {
+      overlay.style.display = "none";
+    }
+
+    // Click hotspots
+    document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const t = btn.getAttribute("data-title");
+        const txt = btn.getAttribute("data-text");
+        openModal(t, txt);
+      });
+    });
+
+    // Close with X
+    closeBtn.addEventListener("click", closeModal);
+
+    // Close by clicking outside the box (but not inside the modal)
+    overlay.addEventListener("click", (e) => {
+      if (!modal.contains(e.target)) closeModal();
+    });
+
+    // ESC to close (nice UX)
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    function exitTutorial() {
+      // Goes back to name-entry flow:
+      // - Google users will still be signed in
+      // - Email-only users will auto-resume from localStorage (because we added that)
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>

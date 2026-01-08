@@ -41,6 +41,9 @@ function attachNameAutosave() {
 
 
 // ------------------ AUTH STATE LISTENER ------------------
+document.addEventListener("DOMContentLoaded", () => {
+    autoResumeEmailOnlySession();
+});
 
 auth.onAuthStateChanged(async (user) => {
     if (!user) {
@@ -788,4 +791,61 @@ function showLoginPage() {
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
+}
+
+function openTutorial() {
+    // Preserve session for email-only users (google users stay signed in via Firebase)
+    try {
+        if (currentUser?.isEmailOnly && currentUser?.email) {
+            localStorage.setItem("emailOnlySession", JSON.stringify({
+                email: currentUser.email,
+                uid: currentUser.uid || null
+            }));
+        }
+    } catch (e) {
+        console.warn("Could not save email-only session:", e);
+    }
+
+    window.location.href = "tutorial.html";
+}
+
+async function autoResumeEmailOnlySession() {
+    // If Firebase user exists, do nothing (Google session will handle it in onAuthStateChanged)
+    if (auth?.currentUser) return;
+
+    // If user is already set (rare), do nothing
+    if (currentUser) return;
+
+    let session = null;
+    try {
+        session = JSON.parse(localStorage.getItem("emailOnlySession") || "null");
+    } catch (e) {}
+
+    if (!session?.email) return;
+
+    // Rebuild your local-only user object
+    currentUser = {
+        email: session.email,
+        uid: session.uid || generateFakeUID(),
+        isEmailOnly: true
+    };
+
+    console.log("Auto-resumed email-only session:", currentUser.email);
+
+    // Load saved responses by email (this will also reuse existing doc id if found)
+    await loadExistingResponsesByEmail(currentUser.email);
+
+    // Show quiz container (name-entry page will be shown by renderPage(-1) after questions load)
+    document.getElementById("login-page").style.display = "none";
+    document.getElementById("quiz-container").style.display = "block";
+
+    attachNameAutosave();
+
+    if (cachedQuestions.length === 0) {
+        await loadQuestions(); // loadQuestions() calls renderPage(-1) which activates page-1
+    } else {
+        renderPage(-1);
+    }
+
+    await saveProgressToFirestore();
 }
