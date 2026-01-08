@@ -216,7 +216,7 @@ textarea {
 .tutorial-image-container {
     position: relative;
     height: 1050px;     /* div height */
-    width: 1000px;       /* div width */
+    width: 1500px;       /* div width */
     margin: 0 auto;     /* keep centered */
     border-radius: 16px;
     overflow: hidden;
