@@ -18,6 +18,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.5/jstat.min.js"></script>
+    <script>
+        // If we're returning from tutorial, hide login/email pages immediately (prevents flash)
+        try {
+            if (sessionStorage.getItem("tutorialReturnIndex") !== null) {
+            document.documentElement.classList.add("restoring");
+            }
+        } catch (e) {}
+    </script>
 </head>
 
 <body>

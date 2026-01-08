@@ -326,3 +326,12 @@ textarea {
   font-size: 18px;
   color: #333;
 }
+/* Prevent login-page flash while restoring the previous page after tutorial */
+html.restoring #login-page,
+html.restoring #email-page {
+  display: none !important;
+}
+
+html.restoring #restore-overlay {
+  display: flex !important; /* override inline display:none */
+}

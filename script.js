@@ -56,13 +56,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 auth.onAuthStateChanged(async (user) => {
     if (!user) {
-        console.log("Not logged in");
+    console.log("Not logged in");
 
-        document.getElementById("login-page").style.display = "block";
-        document.getElementById("quiz-container").style.display = "none";
+    // If we're restoring from tutorial, don't flash the login page.
+    if (document.documentElement.classList.contains("restoring")) {
+        showRestoreOverlay();
         return;
     }
 
+    document.getElementById("login-page").style.display = "block";
+    document.getElementById("quiz-container").style.display = "none";
+    return;
+    }
     // User is logged in
     currentUser = user;
     currentUser.isEmailOnly = false; // keep provider logic consistent
@@ -901,16 +906,31 @@ function exitTutorial() {
 // restore page AFTER returning from tutorial
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = sessionStorage.getItem("tutorialReturnIndex");
-  if (saved !== null) showRestoreOverlay();
 
-  // Let loadQuestions() handle restoration
-  if (cachedQuestions.length === 0) {
-    await loadQuestions();
-  } else {
-    renderPage(parseInt(saved, 10));
+  // Not returning from tutorial → do nothing
+  if (saved === null) {
+    document.documentElement.classList.remove("restoring");
+    hideRestoreOverlay();
+    return;
   }
 
+  showRestoreOverlay();
+
+  // Load questions first (loadQuestions() calls renderPage(-1) by default)
+  if (typeof loadQuestions === "function" && cachedQuestions.length === 0) {
+    await loadQuestions();
+  }
+
+  const idx = parseInt(saved, 10);
   sessionStorage.removeItem("tutorialReturnIndex");
+
+  if (typeof renderPage === "function") {
+    renderPage(Number.isFinite(idx) ? idx : -1);
+  }
+
+  // Done restoring
+  hideRestoreOverlay();
+  document.documentElement.classList.remove("restoring");
 });
 
 function showRestoreOverlay() {
