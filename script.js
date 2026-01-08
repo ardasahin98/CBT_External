@@ -204,7 +204,14 @@ function rememberCurrentPage(index) {
 async function loadQuestions() {
     const response = await fetch("questions.json");
     cachedQuestions = await response.json();
-    renderPage(-1);
+
+    const saved = sessionStorage.getItem("tutorialReturnIndex");
+    if (saved !== null) {
+        const idx = parseInt(saved, 10);
+        renderPage(idx);
+    } else {
+        renderPage(-1);
+    }
 }
 
 
@@ -866,86 +873,6 @@ async function autoResumeEmailOnlySession() {
 /*********************************************************
  * TUTORIAL HOTSPOTS (tutorial.html only)
  *********************************************************/
-document.addEventListener("DOMContentLoaded", () => {
-
-  // ---------- Hotspot popovers ----------
-  document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-
-      const wrap = btn.closest(".hotspot-wrap");
-      const popover = btn.nextElementSibling;
-      const container = btn.closest(".tutorial-image-container");
-
-      const willOpen = !popover.classList.contains("open");
-
-      // close all others first
-      document.querySelectorAll(".tutorial-popover.open").forEach(p => {
-        p.classList.remove("open");
-        p.closest(".hotspot-wrap")?.classList.remove("active");
-      });
-
-      if (!willOpen) return;
-
-      popover.classList.add("open");
-      wrap.classList.add("active");
-
-      // measure
-      popover.style.visibility = "hidden";
-      popover.style.display = "block";
-
-      const containerRect = container.getBoundingClientRect();
-      const btnRect = btn.getBoundingClientRect();
-
-      const gap = 36;
-      const pad = 10;
-      const minW = 160;
-
-      // ---------- horizontal ----------
-      const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
-      const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
-      const openRight = maxRight >= minW || maxRight >= maxLeft;
-
-      popover.style.left = openRight ? `${gap}px` : "auto";
-      popover.style.right = openRight ? "auto" : `${gap}px`;
-      popover.style.maxWidth =
-        `${Math.max(minW, Math.floor(openRight ? maxRight : maxLeft))}px`;
-
-      // ---------- vertical ----------
-      popover.style.top = "0px";
-      const popRect = popover.getBoundingClientRect();
-
-      const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
-      const overflowTop = (containerRect.top + pad) - popRect.top;
-
-      if (overflowBottom > 0) popover.style.top = `${-overflowBottom}px`;
-      if (overflowTop > 0) popover.style.top = `${overflowTop}px`;
-
-      popover.style.visibility = "visible";
-      popover.style.display = "";
-    });
-  });
-
-  // ---------- close when clicking anywhere else ----------
-  document.addEventListener("click", () => {
-    document.querySelectorAll(".tutorial-popover.open").forEach(p => {
-      p.classList.remove("open");
-      p.closest(".hotspot-wrap")?.classList.remove("active");
-    });
-  });
-
-});
-
-
-/*********************************************************
- * OPEN / EXIT TUTORIAL (index.html + tutorial.html)
- *********************************************************/
-
-// store current page index (works for dynamic pages)
-
-
-// call this at the TOP of renderPage(index)
-
 
 // open tutorial
 function openTutorial() {
@@ -972,17 +899,14 @@ function exitTutorial() {
 // restore page AFTER returning from tutorial
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = sessionStorage.getItem("tutorialReturnIndex");
-  if (saved !== null) {
-    sessionStorage.removeItem("tutorialReturnIndex");
+  if (saved === null) return;
 
-    const idx = parseInt(saved, 10);
-
-    if (typeof loadQuestions === "function" && cachedQuestions.length === 0) {
-      await loadQuestions();
-    }
-
-    if (typeof renderPage === "function") {
-      renderPage(idx);
-    }
+  // Let loadQuestions() handle restoration
+  if (cachedQuestions.length === 0) {
+    await loadQuestions();
+  } else {
+    renderPage(parseInt(saved, 10));
   }
+
+  sessionStorage.removeItem("tutorialReturnIndex");
 });
