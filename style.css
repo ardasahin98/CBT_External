@@ -291,3 +291,8 @@ textarea {
 .exit-tutorial-btn:hover {
     background-color: #1c5de0;
 }
+
+.tutorial-btn-wrapper {
+    display: flex;
+    justify-content: center;
+}
