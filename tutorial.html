@@ -39,7 +39,7 @@
             </div>
         </div>
 
-        <div class="hotspot-wrap" style="top:15%; left:15%;">
+        <div class="hotspot-wrap" style="top:15%; left:20%;">
             <button class="tutorial-hotspot" type="button">i</button>
                 <div class="tutorial-popover">
                 <div class="popover-text">
@@ -57,7 +57,7 @@
             </div>
         </div>
 
-        <div class="hotspot-wrap" style="top:40%; left:15%;">
+        <div class="hotspot-wrap" style="top:40%; left:20%;">
             <button class="tutorial-hotspot" type="button">i</button>
                 <div class="tutorial-popover">
                 <div class="popover-text">
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-         <div class="hotspot-wrap" style="bottom:40%; left:40%;">
+         <div class="hotspot-wrap" style="bottom:35%; left:40%;">
             <button class="tutorial-hotspot" type="button">i</button>
                 <div class="tutorial-popover">
                 <div class="popover-text">
@@ -122,17 +122,25 @@
 </div>
 
 <script>
-document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
-  btn.addEventListener("click", (e) => {
-    e.stopPropagation();
+    document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        e.stopPropagation();
 
-    const wrap = btn.closest(".hotspot-wrap");
-    const popover = btn.nextElementSibling;
+        const wrap = btn.closest(".hotspot-wrap");
+        const popover = btn.nextElementSibling;
 
-    popover.classList.toggle("open");
-    wrap.classList.toggle("active", popover.classList.contains("open"));
-  });
-});
+        popover.classList.toggle("open");
+        wrap.classList.toggle("active", popover.classList.contains("open"));
+    });
+    });
+
+    // Close all popovers when clicking anywhere else
+    document.addEventListener("click", () => {
+    document.querySelectorAll(".tutorial-popover.open").forEach(popover => {
+        popover.classList.remove("open");
+        popover.closest(".hotspot-wrap").classList.remove("active");
+    });
+    });
 
   function exitTutorial() {
     sessionStorage.setItem("returnToNamePage", "1");
