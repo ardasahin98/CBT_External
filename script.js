@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentUser = null;
 let cachedQuestions = [];
 let responses = {};
+let lastRenderedIndex = -1;
 
 
 // ------------------ NAME AUTOSAVE ------------------
@@ -194,6 +195,9 @@ async function loadExistingResponsesByEmail(email) {
     }
 }
 
+function rememberCurrentPage(index) {
+  lastRenderedIndex = index;
+}
 
 // ------------------ LOAD QUESTIONS ------------------
 
@@ -938,12 +942,10 @@ document.addEventListener("DOMContentLoaded", () => {
  *********************************************************/
 
 // store current page index (works for dynamic pages)
-let lastRenderedIndex = -1;
+
 
 // call this at the TOP of renderPage(index)
-function rememberCurrentPage(index) {
-  lastRenderedIndex = index;
-}
+
 
 // open tutorial
 function openTutorial() {
