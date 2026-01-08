@@ -222,6 +222,7 @@ function navigatePage(index) {
 // ------------------ PAGE RENDERING (UNCHANGED EXCEPT LOADING) ------------------
 
 function renderPage(index) {
+    rememberCurrentPage(index);
     if (index === -1) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('page-1').classList.add('active');
@@ -858,108 +859,128 @@ async function autoResumeEmailOnlySession() {
 }
 
 
+/*********************************************************
+ * TUTORIAL HOTSPOTS (tutorial.html only)
+ *********************************************************/
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.stopPropagation();
 
-            const wrap = btn.closest(".hotspot-wrap");
-            const popover = btn.nextElementSibling;
-            const container = btn.closest(".tutorial-image-container");
+  // ---------- Hotspot popovers ----------
+  document.querySelectorAll(".tutorial-hotspot").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
 
-            const willOpen = !popover.classList.contains("open");
+      const wrap = btn.closest(".hotspot-wrap");
+      const popover = btn.nextElementSibling;
+      const container = btn.closest(".tutorial-image-container");
 
-            popover.classList.toggle("open");
-            wrap.classList.toggle("active", willOpen);
+      const willOpen = !popover.classList.contains("open");
 
-            if (!willOpen) return;
+      // close all others first
+      document.querySelectorAll(".tutorial-popover.open").forEach(p => {
+        p.classList.remove("open");
+        p.closest(".hotspot-wrap")?.classList.remove("active");
+      });
 
-            popover.style.visibility = "hidden";
-            popover.style.display = "block";
+      if (!willOpen) return;
 
-            const containerRect = container.getBoundingClientRect();
-            const btnRect = btn.getBoundingClientRect();
+      popover.classList.add("open");
+      wrap.classList.add("active");
 
-            const gap = 36;
-            const pad = 10;
-            const minW = 160;
+      // measure
+      popover.style.visibility = "hidden";
+      popover.style.display = "block";
 
-            const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
-            const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
+      const containerRect = container.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
 
-            const openRight = maxRight >= minW || maxRight >= maxLeft;
+      const gap = 36;
+      const pad = 10;
+      const minW = 160;
 
-            popover.style.left = openRight ? `${gap}px` : "auto";
-            popover.style.right = openRight ? "auto" : `${gap}px`;
-            popover.style.maxWidth = `${Math.max(minW, Math.floor(openRight ? maxRight : maxLeft))}px`;
+      // ---------- horizontal ----------
+      const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
+      const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
+      const openRight = maxRight >= minW || maxRight >= maxLeft;
 
-            popover.style.top = "0px";
+      popover.style.left = openRight ? `${gap}px` : "auto";
+      popover.style.right = openRight ? "auto" : `${gap}px`;
+      popover.style.maxWidth =
+        `${Math.max(minW, Math.floor(openRight ? maxRight : maxLeft))}px`;
 
-            const popRect = popover.getBoundingClientRect();
-            const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
-            const overflowTop = (containerRect.top + pad) - popRect.top;
+      // ---------- vertical ----------
+      popover.style.top = "0px";
+      const popRect = popover.getBoundingClientRect();
 
-            if (overflowBottom > 0) popover.style.top = `${-overflowBottom}px`;
-            if (overflowTop > 0) popover.style.top = `${overflowTop}px`;
+      const overflowBottom = popRect.bottom - (containerRect.bottom - pad);
+      const overflowTop = (containerRect.top + pad) - popRect.top;
 
-            popover.style.visibility = "visible";
-            popover.style.display = "";
-        });
+      if (overflowBottom > 0) popover.style.top = `${-overflowBottom}px`;
+      if (overflowTop > 0) popover.style.top = `${overflowTop}px`;
+
+      popover.style.visibility = "visible";
+      popover.style.display = "";
     });
+  });
 
-    document.addEventListener("click", () => {
-        document.querySelectorAll(".tutorial-popover.open").forEach(p => {
-            p.classList.remove("open");
-            p.closest(".hotspot-wrap").classList.remove("active");
-        });
+  // ---------- close when clicking anywhere else ----------
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".tutorial-popover.open").forEach(p => {
+      p.classList.remove("open");
+      p.closest(".hotspot-wrap")?.classList.remove("active");
     });
+  });
+
 });
 
-// Close all popovers when clicking anywhere else
-document.addEventListener("click", () => {
-document.querySelectorAll(".tutorial-popover.open").forEach(popover => {
-    popover.classList.remove("open");
-    popover.closest(".hotspot-wrap").classList.remove("active");
-});
-});
 
-function exitTutorial() {
-    const returnPageId = sessionStorage.getItem("tutorialReturnPage");
-    sessionStorage.removeItem("tutorialReturnPage");
+/*********************************************************
+ * OPEN / EXIT TUTORIAL (index.html + tutorial.html)
+ *********************************************************/
 
-    window.location.href = "index.html";
+// store current page index (works for dynamic pages)
+let lastRenderedIndex = -1;
 
-    if (returnPageId) {
-        sessionStorage.setItem("restorePageAfterTutorial", returnPageId);
-    }
+// call this at the TOP of renderPage(index)
+function rememberCurrentPage(index) {
+  lastRenderedIndex = index;
 }
 
+// open tutorial
 function openTutorial() {
-    // store current page
-    const activePage = document.querySelector(".page.active");
-    if (activePage && activePage.id) {
-        sessionStorage.setItem("tutorialReturnPage", activePage.id);
+  sessionStorage.setItem("tutorialReturnIndex", String(lastRenderedIndex));
+
+  // preserve email-only session
+  try {
+    if (currentUser?.isEmailOnly && currentUser?.email) {
+      localStorage.setItem("emailOnlySession", JSON.stringify({
+        email: currentUser.email,
+        uid: currentUser.uid || null
+      }));
     }
+  } catch (e) {}
 
-    // preserve email-only session
-    try {
-        if (currentUser?.isEmailOnly && currentUser?.email) {
-            localStorage.setItem("emailOnlySession", JSON.stringify({
-                email: currentUser.email,
-                uid: currentUser.uid || null
-            }));
-        }
-    } catch (e) {}
-
-    window.location.href = "tutorial.html";
+  window.location.href = "tutorial.html";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const restoreId = sessionStorage.getItem("restorePageAfterTutorial");
-    if (restoreId) {
-        sessionStorage.removeItem("restorePageAfterTutorial");
-        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-        const page = document.getElementById(restoreId);
-        if (page) page.classList.add("active");
+// exit tutorial → go back to index.html
+function exitTutorial() {
+  window.location.href = "index.html";
+}
+
+// restore page AFTER returning from tutorial
+document.addEventListener("DOMContentLoaded", async () => {
+  const saved = sessionStorage.getItem("tutorialReturnIndex");
+  if (saved !== null) {
+    sessionStorage.removeItem("tutorialReturnIndex");
+
+    const idx = parseInt(saved, 10);
+
+    if (typeof loadQuestions === "function" && cachedQuestions.length === 0) {
+      await loadQuestions();
     }
+
+    if (typeof renderPage === "function") {
+      renderPage(idx);
+    }
+  }
 });
