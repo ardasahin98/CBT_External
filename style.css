@@ -315,11 +315,13 @@ textarea {
 
 .tutorial-image-container {
   position: relative;
+  height: 1000px;
   width: 100%;
 }
 
 .tutorial-image-container img {
   width: 100%;
+  max-height: 1000px;
   object-fit: contain;
   border-radius: 10px;
   display: block;
