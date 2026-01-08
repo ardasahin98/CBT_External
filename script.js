@@ -14,6 +14,14 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+document.addEventListener("DOMContentLoaded", () => {
+    const wantsNamePage = sessionStorage.getItem("returnToNamePage") === "1";
+    if (wantsNamePage) {
+        sessionStorage.removeItem("returnToNamePage");
+        document.getElementById("login-page").style.display = "none";
+        document.getElementById("quiz-container").style.display = "block";
+    }
+});
 
 // ------------------ GLOBAL ------------------
 let currentUser = null;

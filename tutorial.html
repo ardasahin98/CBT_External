@@ -16,7 +16,7 @@
 
     <div class="tutorial-image-container" id="tutorialImageWrap">
       <!-- Replace this image path with your real tutorial screenshot -->
-      <img src="Figures_External/tutorial_example.png" alt="Tutorial Example" />
+      <img src="Tutorial_Example.png" alt="Tutorial Example" />
 
       <!-- Hotspots (positioned in % so they scale with the image) -->
       <button
@@ -100,10 +100,8 @@
     });
 
     function exitTutorial() {
-      // Goes back to name-entry flow:
-      // - Google users will still be signed in
-      // - Email-only users will auto-resume from localStorage (because we added that)
-      window.location.href = "index.html";
+    sessionStorage.setItem("returnToNamePage", "1");
+    window.location.href = "index.html";
     }
   </script>
 
