@@ -128,9 +128,46 @@
 
         const wrap = btn.closest(".hotspot-wrap");
         const popover = btn.nextElementSibling;
+        const container = btn.closest(".tutorial-image-container");
 
+        // Toggle
+        const willOpen = !popover.classList.contains("open");
+
+        // Close this one
         popover.classList.toggle("open");
-        wrap.classList.toggle("active", popover.classList.contains("open"));
+        wrap.classList.toggle("active", willOpen);
+
+        if (!willOpen) return;
+
+        // ---- Keep popover inside container ----
+        // Make it measurable
+        popover.style.visibility = "hidden";
+        popover.style.display = "block";
+
+        const containerRect = container.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+
+        const gap = 36;     // distance from button
+        const pad = 10;     // inner padding from container edge
+
+        // Max width available to the right of the button
+        const maxRight = (containerRect.right - pad) - (btnRect.right + gap);
+        // Max width available to the left of the button
+        const maxLeft  = (btnRect.left - gap) - (containerRect.left + pad);
+
+        // Choose side based on available space
+        const openRight = maxRight >= 160 || maxRight >= maxLeft; // 160 = minimum usable width
+
+        // Set side + max width
+        popover.style.left = openRight ? `${gap}px` : "auto";
+        popover.style.right = openRight ? "auto" : `${gap}px`;
+
+        const maxW = Math.max(160, Math.floor(openRight ? maxRight : maxLeft));
+        popover.style.maxWidth = `${maxW}px`;
+
+        // Now show it normally
+        popover.style.visibility = "visible";
+        popover.style.display = "";
     });
     });
 

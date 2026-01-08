@@ -216,7 +216,7 @@ textarea {
 .tutorial-image-container {
     position: relative;
     height: 1050px;     /* div height */
-    width: 1500px;       /* div width */
+    width: 1000px;       /* div width */
     margin: 0 auto;     /* keep centered */
     border-radius: 16px;
     overflow: hidden;
@@ -272,14 +272,16 @@ textarea {
     z-index: 2; /* above button (within same wrap) */
     top: 0;
     left: 36px;
+    right: auto;
     min-width: 220px;
-    max-width: 280px;
+    max-width: none;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 10px;
     padding: 10px 12px;
     box-shadow: 0 10px 22px rgba(0,0,0,0.18);
     display: none;
+    box-sizing: border-box;
 }
 
 .tutorial-popover.open {
