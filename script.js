@@ -140,11 +140,12 @@ async function emailOnlyLogin() {
         errorDiv.style.visibility = "hidden";
     }
 
-    // Create local-only user object
+    const normalizedEmail = email.toLowerCase().trim();
+
     currentUser = {
-        email: email,
-        uid: generateFakeUID(),
-        isEmailOnly: true   // <-- add this
+    email: normalizedEmail,
+    uid: normalizedEmail,
+    isEmailOnly: true
     };
 
     console.log("Email-only login:", currentUser);
@@ -190,24 +191,19 @@ async function loadExistingResponses() {
 
 // Email-only users (kept single version)
 async function loadExistingResponsesByEmail(email) {
-    const snap = await db
-        .collection("responses_external")
-        .where("email", "==", email)
-        .limit(1)
-        .get();
+    const docId = email.toLowerCase().trim();
+    const docRef = db.collection("responses_external").doc(docId);
+    const snap = await docRef.get();
 
-    if (!snap.empty) {
-        const doc = snap.docs[0];
-        const data = doc.data();
-
+    if (snap.exists) {
+        const data = snap.data();
         responses = data.responses || {};
-
-        // reuse the existing document ID so we keep writing to the same place
-        currentUser.uid = doc.id;
-
+        currentUser.uid = docId;
         document.getElementById("researcher-name").value = data.name || "";
         console.log("Loaded saved email-only responses from responses_external.");
     } else {
+        responses = {};
+        currentUser.uid = docId;
         console.log("No saved email-only responses found for this email.");
     }
 }
@@ -861,10 +857,11 @@ async function autoResumeEmailOnlySession() {
 
     if (!session?.email) return;
 
-    // Rebuild your local-only user object
+    const normalizedEmail = session.email.toLowerCase().trim();
+
     currentUser = {
-        email: session.email,
-        uid: session.uid || generateFakeUID(),
+        email: normalizedEmail,
+        uid: normalizedEmail,
         isEmailOnly: true
     };
 
