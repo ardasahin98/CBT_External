@@ -343,7 +343,7 @@ html.restoring #restore-overlay {
     padding: 8px;
     width: 260px;
     font-size: 14px;
-    text-align: center;
+    text-align: left;
 }
 
 .checkbox-group {
@@ -367,11 +367,6 @@ html.restoring #restore-overlay {
     display: grid;
     grid-template-columns: 1fr minmax(500px, 700px) 1fr;
     width: 100%;
-}
-
-/* Empty left & right columns */
-.side-column {
-    /* intentionally empty */
 }
 
 /* Center content */
