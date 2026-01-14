@@ -347,6 +347,12 @@ function navigatePage(index) {
 // ------------------ PAGE RENDERING (UNCHANGED EXCEPT LOADING) ------------------
 
 function renderPage(index) {
+
+    if (restoreInProgress) {
+        hideRestoreOverlay();
+        document.documentElement.classList.remove("restoring");
+        restoreInProgress = false;
+    }
     rememberCurrentPage(index);
     if (index === -1) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
