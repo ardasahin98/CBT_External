@@ -30,7 +30,15 @@ let responses = {};
 let lastRenderedIndex = -1;
 let researcherMeta = {};
 
+// True if we are coming back from tutorial and need to restore a question index
+const isReturningFromTutorial = sessionStorage.getItem("tutorialReturnIndex") !== null;
 
+// Email-only session info (if user used your email login)
+let emailOnlySessionEmail = null;
+try {
+    const s = JSON.parse(localStorage.getItem("emailOnlySession") || "null");
+    emailOnlySessionEmail = s?.email || null;
+} catch (e) {}
 
 
 // Meta researcher
@@ -108,54 +116,63 @@ function setupProjectCheckboxes() {
     });
 }
 
-// ------------------ AUTH STATE LISTENER ------------------
-document.addEventListener("DOMContentLoaded", () => {
-    autoResumeEmailOnlySession();
-});
 
 auth.onAuthStateChanged(async (user) => {
+
+    /* -------------------------------------------------
+       CASE 1: NO Firebase-authenticated user
+       ------------------------------------------------- */
     if (!user) {
-    console.log("Not logged in");
 
-    if (document.documentElement.classList.contains("restoring")) {
-        showRestoreOverlay();
+        // A) Email-only session exists → resume it
+        if (emailOnlySessionEmail) {
+            await autoResumeEmailOnlySession();
+            return;
+        }
 
-        // ✅ fallback: if no auth user appears shortly, show login page
-        setTimeout(() => {
-            if (!auth?.currentUser) {
-                document.documentElement.classList.remove("restoring");
-                hideRestoreOverlay();
-                document.getElementById("login-page").style.display = "block";
-                document.getElementById("quiz-container").style.display = "none";
-            }
-        }, 1200);
+        // B) Returning from tutorial → let restore logic handle UI
+        if (isReturningFromTutorial) {
+            return;
+        }
 
+        // C) Not logged in at all → show login page
+        console.log("Not logged in");
+        document.getElementById("login-page").style.display = "block";
+        document.getElementById("quiz-container").style.display = "none";
         return;
     }
 
-    document.getElementById("login-page").style.display = "block";
-    document.getElementById("quiz-container").style.display = "none";
-    return;
+    /* -------------------------------------------------
+       CASE 2: Firebase user exists (Google login)
+       ------------------------------------------------- */
+
+    // If we are restoring (tutorial return), show overlay briefly
+    if (document.documentElement.classList.contains("restoring")) {
+        showRestoreOverlay();
     }
-    // User is logged in
+
+    // Set current user
     currentUser = user;
-    currentUser.isEmailOnly = false; // keep provider logic consistent
+    currentUser.isEmailOnly = false;   // explicit for consistency
+
     console.log("Logged in:", user.email, "UID:", user.uid);
 
-    // Show quiz
+    // Show quiz UI
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
 
     // Load saved responses FIRST
     await loadExistingResponses();
 
-    // Only load questions once
+    // Load questions only once
     if (cachedQuestions.length === 0) {
         await loadQuestions();
     }
 
-    // Save identity (email/provider/name) immediately without waiting for Next
+    // Persist identity immediately
     await saveProgressToFirestore();
+
+    // Cleanup restore state
     hideRestoreOverlay();
     document.documentElement.classList.remove("restoring");
 });
@@ -1005,16 +1022,20 @@ function exitTutorial() {
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = sessionStorage.getItem("tutorialReturnIndex");
 
-  // Not returning from tutorial → do nothing
   if (saved === null) {
     document.documentElement.classList.remove("restoring");
     hideRestoreOverlay();
     return;
   }
 
+  document.documentElement.classList.add("restoring");
   showRestoreOverlay();
 
-  // Load questions first (loadQuestions() calls renderPage(-1) by default)
+  // 🔑 FIX: restore email-only session first
+  if (!auth?.currentUser && !currentUser && emailOnlySessionEmail) {
+      await autoResumeEmailOnlySession();
+  }
+
   if (typeof loadQuestions === "function" && cachedQuestions.length === 0) {
     await loadQuestions();
   }
@@ -1022,11 +1043,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const idx = parseInt(saved, 10);
   sessionStorage.removeItem("tutorialReturnIndex");
 
-  if (typeof renderPage === "function") {
-    renderPage(Number.isFinite(idx) ? idx : -1);
-  }
+  renderPage(Number.isFinite(idx) ? idx : -1);
 
-  // Done restoring
   hideRestoreOverlay();
   document.documentElement.classList.remove("restoring");
 });
