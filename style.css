@@ -339,7 +339,7 @@ html.restoring #restore-overlay {
 
 .other-input {
     display: none;
-    margin: 8px auto 0 auto;   /* center horizontally */
+    margin: 8px 0 0 0;   /* no auto → left aligned */
     padding: 8px;
     width: 260px;
     font-size: 14px;
