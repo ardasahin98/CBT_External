@@ -29,7 +29,7 @@ let cachedQuestions = [];
 let responses = {};
 let lastRenderedIndex = -1;
 let researcherMeta = {};
-let restoreInProgress = false;
+// let restoreInProgress = false;
 
 // True if we are coming back from tutorial and need to restore a question index
 function isReturningFromTutorial() {
@@ -348,11 +348,11 @@ function navigatePage(index) {
 
 function renderPage(index) {
 
-    if (restoreInProgress) {
-        hideRestoreOverlay();
-        document.documentElement.classList.remove("restoring");
-        restoreInProgress = false;
-    }
+    // if (restoreInProgress) {
+    //     hideRestoreOverlay();
+    //     document.documentElement.classList.remove("restoring");
+    //     restoreInProgress = false;
+    // }
     rememberCurrentPage(index);
     if (index === -1) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
@@ -635,11 +635,11 @@ function renderPage(index) {
     } else {
         console.error(`Invalid page index: ${index}`);
     }
-    if (restoreInProgress) {
-        restoreInProgress = false;
-        hideRestoreOverlay();
-        document.documentElement.classList.remove("restoring");
-    }
+    // if (restoreInProgress) {
+    //     restoreInProgress = false;
+    //     hideRestoreOverlay();
+    //     document.documentElement.classList.remove("restoring");
+    // }
 
 }
 
@@ -1010,19 +1010,16 @@ async function autoResumeEmailOnlySession() {
 
 // open tutorial
 function openTutorial() {
-  sessionStorage.setItem("tutorialReturnIndex", String(lastRenderedIndex));
+    sessionStorage.setItem("tutorialReturnIndex", String(lastRenderedIndex));
 
-  // preserve email-only session
-  try {
     if (currentUser?.isEmailOnly && currentUser?.email) {
-      localStorage.setItem("emailOnlySession", JSON.stringify({
-        email: currentUser.email,
-        uid: currentUser.uid || null
-      }));
+        localStorage.setItem("emailOnlySession", JSON.stringify({
+            email: currentUser.email,
+            uid: currentUser.uid
+        }));
     }
-  } catch (e) {}
 
-  window.location.href = "tutorial.html";
+    window.location.href = "tutorial.html";
 }
 
 // exit tutorial → go back to index.html
@@ -1031,39 +1028,33 @@ function exitTutorial() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const saved = sessionStorage.getItem("tutorialReturnIndex");
+    const saved = sessionStorage.getItem("tutorialReturnIndex");
 
-  if (saved === null) {
-    hideRestoreOverlay();
-    return;
-  }
+    if (!saved) return;
 
-  restoreInProgress = true;
-  document.documentElement.classList.add("restoring");
-  showRestoreOverlay();
+    // Restore email-only session if needed
+    if (!auth.currentUser && !currentUser && emailOnlySessionEmail) {
+        await autoResumeEmailOnlySession();
+    }
 
-  if (!auth.currentUser && !currentUser && emailOnlySessionEmail) {
-    await autoResumeEmailOnlySession();
-  }
+    if (cachedQuestions.length === 0) {
+        await loadQuestions();
+    }
 
-  if (cachedQuestions.length === 0) {
-    await loadQuestions();
-  }
+    const idx = parseInt(saved, 10);
+    sessionStorage.removeItem("tutorialReturnIndex");
 
-  const idx = parseInt(saved, 10);
-  sessionStorage.removeItem("tutorialReturnIndex");
-
-  renderPage(Number.isFinite(idx) ? idx : -1);
+    renderPage(Number.isFinite(idx) ? idx : -1);
 });
 
 
 
-function showRestoreOverlay() {
-  const el = document.getElementById("restore-overlay");
-  if (el) el.style.display = "flex";
-}
+// function showRestoreOverlay() {
+//   const el = document.getElementById("restore-overlay");
+//   if (el) el.style.display = "flex";
+// }
 
-function hideRestoreOverlay() {
-  const el = document.getElementById("restore-overlay");
-  if (el) el.style.display = "none";
-}
+// function hideRestoreOverlay() {
+//   const el = document.getElementById("restore-overlay");
+//   if (el) el.style.display = "none";
+// }
