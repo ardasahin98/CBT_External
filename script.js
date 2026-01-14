@@ -29,6 +29,7 @@ let cachedQuestions = [];
 let responses = {};
 let lastRenderedIndex = -1;
 let researcherMeta = {};
+let restoreInProgress = false;
 
 // True if we are coming back from tutorial and need to restore a question index
 function isReturningFromTutorial() {
@@ -628,6 +629,11 @@ function renderPage(index) {
     } else {
         console.error(`Invalid page index: ${index}`);
     }
+    if (restoreInProgress) {
+        restoreInProgress = false;
+        hideRestoreOverlay();
+        document.documentElement.classList.remove("restoring");
+    }
 
 }
 
@@ -1018,25 +1024,23 @@ function exitTutorial() {
   window.location.href = "index.html";
 }
 
-// restore page AFTER returning from tutorial
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = sessionStorage.getItem("tutorialReturnIndex");
 
   if (saved === null) {
-    document.documentElement.classList.remove("restoring");
     hideRestoreOverlay();
     return;
   }
 
+  restoreInProgress = true;
   document.documentElement.classList.add("restoring");
   showRestoreOverlay();
 
-  // 🔑 FIX: restore email-only session first
-  if (!auth?.currentUser && !currentUser && emailOnlySessionEmail) {
-      await autoResumeEmailOnlySession();
+  if (!auth.currentUser && !currentUser && emailOnlySessionEmail) {
+    await autoResumeEmailOnlySession();
   }
 
-  if (typeof loadQuestions === "function" && cachedQuestions.length === 0) {
+  if (cachedQuestions.length === 0) {
     await loadQuestions();
   }
 
@@ -1044,10 +1048,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   sessionStorage.removeItem("tutorialReturnIndex");
 
   renderPage(Number.isFinite(idx) ? idx : -1);
-
-  hideRestoreOverlay();
-  document.documentElement.classList.remove("restoring");
 });
+
+
 
 function showRestoreOverlay() {
   const el = document.getElementById("restore-overlay");
