@@ -105,9 +105,12 @@
                 <label><b>Affiliation</b></label>
                 <select id="affiliation">
                     <option value="">Select</option>
-                    <option>Academia</option>
-                    <option>Industry</option>
+                    <option>Consultant</option>
+                    <option>Contractor</option>
+                    <option>University Researcher</option>
                     <option>Government</option>
+                    <option>Other Researcher</option>
+                    <option>Student</option>
                     <option>Other</option>
                 </select>
                 <input id="affiliation_other" class="other-input" placeholder="Please specify" />
@@ -117,21 +120,30 @@
                 <label><b>Years of experience</b></label>
                 <select id="experience">
                     <option value="">Select</option>
-                    <option>0–5</option>
-                    <option>5–10</option>
-                    <option>10–15</option>
-                    <option>15+</option>
+                    <option>Less than 5 years</option>
+                    <option>5 to 10 years</option>
+                    <option>10 to 20 years</option>
+                    <option>More than 30 years</option>
                 </select>
             </div>
 
             <div class="question-header">
-                <label><b>Project involved</b></label>
-                <select id="project">
-                    <option value="">Select</option>
-                    <option>NGL</option>
-                    <option>PEER</option>
-                    <option>Other</option>
-                </select>
+                <label><b>Project involved (select all that apply)</b></label>
+
+                <div id="project-checkbox-group" class="checkbox-group">
+                    <label><input type="checkbox" value="Transportation infrastructure (bridges, roads)"> Transportation infrastructure (bridges, roads)</label>
+                    <label><input type="checkbox" value="Dams, embankments or levees"> Dams, embankments or levees</label>
+                    <label><input type="checkbox" value="Critical facilities (e.g., hospitals)"> Critical facilities (e.g., hospitals)</label>
+                    <label><input type="checkbox" value="Building foundations (deep or shallow)"> Building foundations (deep or shallow)</label>
+                    <label><input type="checkbox" value="Offshore structures"> Offshore structures</label>
+                    <label><input type="checkbox" value="Ports or waterfront structures"> Ports or waterfront structures</label>
+                    <label><input type="checkbox" value="Nuclear energy facilities"> Nuclear energy facilities</label>
+                    <label><input type="checkbox" value="Distributed infrastructure systems"> Distributed infrastructure systems</label>
+                    <label><input type="checkbox" value="Pipelines"> Pipelines</label>
+                    <label><input type="checkbox" value="Other lifelines"> Other lifelines</label>
+                    <label><input type="checkbox" value="Other" id="project_other_checkbox"> Other</label>
+                </div>
+
                 <input id="project_other" class="other-input" placeholder="Please specify" />
             </div>
 
@@ -139,9 +151,9 @@
                 <label><b>Where did you hear about this survey?</b></label>
                 <select id="referral">
                     <option value="">Select</option>
-                    <option>Colleague</option>
-                    <option>Conference</option>
-                    <option>Email</option>
+                    <option>NGL Webinar</option>
+                    <option>NGL Project Homepage</option>
+                    <option>NGL Modeling Teams Meeting</option>
                     <option>Other</option>
                 </select>
                 <input id="referral_other" class="other-input" placeholder="Please specify" />

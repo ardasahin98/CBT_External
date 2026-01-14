@@ -62,7 +62,51 @@ function attachMetaDropdown(selectId, otherId) {
         });
     }
 }
+function setupProjectCheckboxes() {
+    const group = document.getElementById("project-checkbox-group");
+    const otherCheckbox = document.getElementById("project_other_checkbox");
+    const otherInput = document.getElementById("project_other");
 
+    if (!group) return;
+
+    researcherMeta.project = researcherMeta.project || [];
+
+    // Restore checked state
+    group.querySelectorAll("input[type='checkbox']").forEach(cb => {
+        cb.checked = researcherMeta.project.includes(cb.value);
+    });
+
+    // Show Other input if needed
+    if (researcherMeta.project.includes("Other")) {
+        otherInput.style.display = "block";
+        otherInput.value = researcherMeta.project_other || "";
+    }
+
+    group.addEventListener("change", () => {
+        const selected = [];
+
+        group.querySelectorAll("input[type='checkbox']:checked").forEach(cb => {
+            selected.push(cb.value);
+        });
+
+        researcherMeta.project = selected;
+
+        if (selected.includes("Other")) {
+            otherInput.style.display = "block";
+        } else {
+            otherInput.style.display = "none";
+            otherInput.value = "";
+            researcherMeta.project_other = "";
+        }
+
+        saveProgressToFirestore();
+    });
+
+    otherInput.addEventListener("input", () => {
+        researcherMeta.project_other = otherInput.value.trim();
+        saveProgressToFirestore();
+    });
+}
 
 // ------------------ AUTH STATE LISTENER ------------------
 document.addEventListener("DOMContentLoaded", () => {
@@ -205,6 +249,8 @@ async function loadExistingResponses() {
             }
         }
 
+        setTimeout(() => setupProjectCheckboxes(), 0);
+
         console.log("Loaded previous responses (google) from responses_external.");
     } else {
         responses = {};
@@ -231,6 +277,8 @@ async function loadExistingResponsesByEmail(email) {
                 el.style.display = "block";
             }
         }
+
+        setTimeout(() => setupProjectCheckboxes(), 0);
 
         console.log("Loaded saved email-only responses.");
     } else {
@@ -285,7 +333,7 @@ function renderPage(index) {
         document.getElementById('page-1').classList.add('active');
         attachMetaDropdown("expertise", "expertise_other");
         attachMetaDropdown("affiliation", "affiliation_other");
-        attachMetaDropdown("project", "project_other");
+        setupProjectCheckboxes();
         attachMetaDropdown("referral", "referral_other");
 
         document.getElementById("experience")?.addEventListener("change", () => {
