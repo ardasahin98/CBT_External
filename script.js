@@ -28,24 +28,39 @@ let currentUser = null;
 let cachedQuestions = [];
 let responses = {};
 let lastRenderedIndex = -1;
+let researcherMeta = {};
 
 
-// ------------------ NAME AUTOSAVE ------------------
-let nameSaveTimer = null;
 
-function attachNameAutosave() {
-    const el = document.getElementById("researcher-name");
-    if (!el) return;
-    if (el.dataset.autosaveAttached === "1") return;
-    el.dataset.autosaveAttached = "1";
 
-    el.addEventListener("input", () => {
-        clearTimeout(nameSaveTimer);
-        nameSaveTimer = setTimeout(() => saveProgressToFirestore(), 400);
+// Meta researcher
+function attachMetaDropdown(selectId, otherId) {
+    const select = document.getElementById(selectId);
+    const other = document.getElementById(otherId);
+
+    if (!select) return;
+
+    select.addEventListener("change", () => {
+        researcherMeta[selectId] = select.value;
+
+        if (other) {
+            if (select.value === "Other") {
+                other.style.display = "block";
+            } else {
+                other.style.display = "none";
+                other.value = "";
+                researcherMeta[otherId] = "";
+            }
+        }
+        saveProgressToFirestore();
     });
 
-    el.addEventListener("blur", () => saveProgressToFirestore());
-    el.addEventListener("change", () => saveProgressToFirestore());
+    if (other) {
+        other.addEventListener("input", () => {
+            researcherMeta[otherId] = other.value.trim();
+            saveProgressToFirestore();
+        });
+    }
 }
 
 
@@ -86,8 +101,6 @@ auth.onAuthStateChanged(async (user) => {
     // Show quiz
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
-
-    attachNameAutosave();
 
     // Load saved responses FIRST
     await loadExistingResponses();
@@ -157,8 +170,6 @@ async function emailOnlyLogin() {
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
 
-    attachNameAutosave();
-
     // Load questions if not loaded yet
     if (cachedQuestions.length === 0) {
         await loadQuestions();
@@ -180,16 +191,28 @@ async function loadExistingResponses() {
 
     if (snap.exists) {
         const data = snap.data();
+
         responses = data.responses || {};
-        document.getElementById("researcher-name").value = data.name || "";
+        researcherMeta = data.researcherMeta || {};
+
+        // Restore metadata fields
+        for (const key in researcherMeta) {
+            const el = document.getElementById(key);
+            if (el) el.value = researcherMeta[key];
+
+            if (key.endsWith("_other") && researcherMeta[key]) {
+                el.style.display = "block";
+            }
+        }
+
         console.log("Loaded previous responses (google) from responses_external.");
     } else {
         responses = {};
+        researcherMeta = {};
         console.log("No existing responses found (google).");
     }
 }
 
-// Email-only users (kept single version)
 async function loadExistingResponsesByEmail(email) {
     const docId = email.toLowerCase().trim();
     const docRef = db.collection("responses_external").doc(docId);
@@ -198,13 +221,23 @@ async function loadExistingResponsesByEmail(email) {
     if (snap.exists) {
         const data = snap.data();
         responses = data.responses || {};
+        researcherMeta = data.researcherMeta || {};
         currentUser.uid = docId;
-        document.getElementById("researcher-name").value = data.name || "";
-        console.log("Loaded saved email-only responses from responses_external.");
+
+        for (const key in researcherMeta) {
+            const el = document.getElementById(key);
+            if (el) el.value = researcherMeta[key];
+            if (key.endsWith("_other") && researcherMeta[key]) {
+                el.style.display = "block";
+            }
+        }
+
+        console.log("Loaded saved email-only responses.");
     } else {
         responses = {};
+        researcherMeta = {};
         currentUser.uid = docId;
-        console.log("No saved email-only responses found for this email.");
+        console.log("No saved email-only responses found.");
     }
 }
 
@@ -250,6 +283,15 @@ function renderPage(index) {
     if (index === -1) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('page-1').classList.add('active');
+        attachMetaDropdown("expertise", "expertise_other");
+        attachMetaDropdown("affiliation", "affiliation_other");
+        attachMetaDropdown("project", "project_other");
+        attachMetaDropdown("referral", "referral_other");
+
+        document.getElementById("experience")?.addEventListener("change", () => {
+            researcherMeta.experience = document.getElementById("experience").value;
+            saveProgressToFirestore();
+        });
     } else if (index === -2) {
         document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
         document.getElementById('last_page').classList.add('active');
@@ -577,20 +619,19 @@ function getMaxStd(mean) {
 async function saveProgressToFirestore() {
     if (!currentUser) return;
 
-    const name = document.getElementById("researcher-name")?.value?.trim() || "";
-
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email || "",
-        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
-        name: name,
+        authProvider: (currentUser.isEmailOnly ? "email" : "google"),
+        researcherMeta: researcherMeta,
         responses: responses,
         savedAt: new Date().toISOString()
     };
 
     try {
-        await db.collection("responses_external").doc(currentUser.uid).set(payload, { merge: true });
-        console.log("Auto-saved progress");
+        await db.collection("responses_external")
+            .doc(currentUser.uid)
+            .set(payload, { merge: true });
     } catch (err) {
         console.error("Auto-save failed:", err);
     }
@@ -736,29 +777,26 @@ function loadSavedAnswer(q) {
 // ------------------ SUBMIT TO FIRESTORE ------------------
 
 async function submitForm() {
-
     if (!currentUser) {
         alert("Please sign in first.");
         return;
     }
 
-    const name = document.getElementById("researcher-name").value.trim();
-
     const payload = {
         uid: currentUser.uid,
         email: currentUser.email,
-        authProvider: (currentUser.isEmailOnly || currentUser.isLocalUser) ? "email" : "google",
-        name: name,
+        authProvider: (currentUser.isEmailOnly ? "email" : "google"),
+        researcherMeta: researcherMeta,
         responses: responses,
         submittedAt: new Date().toISOString()
     };
 
     try {
-        console.log("Saving to Firestore:", currentUser.uid);
-        console.log("SUBMIT ATTEMPT UID:", currentUser.uid);
-        await db.collection("responses_external").doc(currentUser.uid).set(payload);
-        alert("Your responses have been saved!");
+        await db.collection("responses_external")
+            .doc(currentUser.uid)
+            .set(payload, { merge: true });
 
+        alert("Your responses have been saved!");
     } catch (error) {
         console.error("Firestore error:", error);
         alert("Error saving data: " + error.message);
@@ -787,8 +825,12 @@ function downloadExcel() {
     // Create array for Excel
     const excelData = [];
 
-    excelData.push(["Researcher Name", document.getElementById("researcher-name").value]);
     excelData.push(["Email", currentUser.email]);
+    excelData.push([]);
+    excelData.push(["Demographics"]);
+    Object.keys(researcherMeta).forEach(k => {
+        excelData.push([k, researcherMeta[k]]);
+    });
     excelData.push([]);
     excelData.push(["Question #", "Behavior", "Slider", "Std Dev", "Comments"]);
 
@@ -874,7 +916,6 @@ async function autoResumeEmailOnlySession() {
     document.getElementById("login-page").style.display = "none";
     document.getElementById("quiz-container").style.display = "block";
 
-    attachNameAutosave();
 
     if (cachedQuestions.length === 0) {
         await loadQuestions(); // loadQuestions() calls renderPage(-1) which activates page-1

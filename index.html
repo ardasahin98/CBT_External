@@ -13,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -90,28 +89,63 @@
             </div>
 
             <div class="question-header">
-                <label><b>What is your main area of expertise or discipline?</b></label>
-                <select id="discipline-select" class="question-input">
-                    <option >Geotechnical Engineering</option>
-                    <option >Structural Engineering</option>
-                    <option >Civil Engineering</option>
-                    <option >Seismology</option>
-                    <option >Other</option>
+                <label><b>Field of expertise</b></label>
+                <select id="expertise">
+                    <option value="">Select</option>
+                    <option>Geotechnical Engineering</option>
+                    <option>Structural Engineering</option>
+                    <option>Civil Engineering</option>
+                    <option>Seismology</option>
+                    <option>Other</option>
+                </select>
+                <input id="expertise_other" class="other-input" placeholder="Please specify" />
+            </div>
+
+            <div class="question-header">
+                <label><b>Affiliation</b></label>
+                <select id="affiliation">
+                    <option value="">Select</option>
+                    <option>Academia</option>
+                    <option>Industry</option>
+                    <option>Government</option>
+                    <option>Other</option>
+                </select>
+                <input id="affiliation_other" class="other-input" placeholder="Please specify" />
+            </div>
+
+            <div class="question-header">
+                <label><b>Years of experience</b></label>
+                <select id="experience">
+                    <option value="">Select</option>
+                    <option>0–5</option>
+                    <option>5–10</option>
+                    <option>10–15</option>
+                    <option>15+</option>
                 </select>
             </div>
 
-            <div class="question-header" id="other-discipline-container" style="display: none;">
-                <label><b>Other:</b></label>
-                <input
-                    type="text"
-                    id="discipline-other"
-                    class="question-input"
-                    placeholder="Please specify"
-                >
+            <div class="question-header">
+                <label><b>Project involved</b></label>
+                <select id="project">
+                    <option value="">Select</option>
+                    <option>NGL</option>
+                    <option>PEER</option>
+                    <option>Other</option>
+                </select>
+                <input id="project_other" class="other-input" placeholder="Please specify" />
             </div>
 
-
-
+            <div class="question-header">
+                <label><b>Where did you hear about this survey?</b></label>
+                <select id="referral">
+                    <option value="">Select</option>
+                    <option>Colleague</option>
+                    <option>Conference</option>
+                    <option>Email</option>
+                    <option>Other</option>
+                </select>
+                <input id="referral_other" class="other-input" placeholder="Please specify" />
+            </div>
 
             <div class="navigation-buttons">
                 <button onclick="navigatePage(0)">Next</button>

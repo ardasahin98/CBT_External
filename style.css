@@ -336,3 +336,11 @@ html.restoring #email-page {
 html.restoring #restore-overlay {
   display: flex !important; /* override inline display:none */
 }
+
+.other-input {
+    display: none;
+    margin-top: 8px;
+    padding: 8px;
+    width: 260px;
+    font-size: 14px;
+}
