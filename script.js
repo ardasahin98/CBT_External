@@ -149,9 +149,9 @@ auth.onAuthStateChanged(async (user) => {
        ------------------------------------------------- */
 
     // If we are restoring (tutorial return), show overlay briefly
-    if (document.documentElement.classList.contains("restoring")) {
-        showRestoreOverlay();
-    }
+    // if (document.documentElement.classList.contains("restoring")) {
+    //     showRestoreOverlay();
+    // }
 
     // Set current user
     currentUser = user;
@@ -175,8 +175,8 @@ auth.onAuthStateChanged(async (user) => {
     await saveProgressToFirestore();
 
     // Cleanup restore state
-    hideRestoreOverlay();
-    document.documentElement.classList.remove("restoring");
+    // hideRestoreOverlay();
+    // document.documentElement.classList.remove("restoring");
 });
 
 
