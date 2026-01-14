@@ -90,9 +90,28 @@
             </div>
 
             <div class="question-header">
-                <label><b>Name of the Researcher:</b></label>
-                <input type="text" id="researcher-name" placeholder="Enter your name">
+                <label><b>What is your main area of expertise or discipline?</b></label>
+                <select id="discipline-select" class="question-input">
+                    <option value="Geotechnical Engineering">Geotechnical Engineering</option>
+                    <option value="Structural Engineering">Structural Engineering</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Seismology">Seismology</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
+
+            <div class="question-header" id="other-discipline-container" style="display: none;">
+                <label><b>Other:</b></label>
+                <input
+                    type="text"
+                    id="discipline-other"
+                    class="question-input"
+                    placeholder="Please specify"
+                >
+            </div>
+
+
+
 
             <div class="navigation-buttons">
                 <button onclick="navigatePage(0)">Next</button>
