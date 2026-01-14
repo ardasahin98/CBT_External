@@ -30,7 +30,7 @@ body {
 
 /* ---- Header ---- */
 .question-header {
-    text-align: left;
+    text-align: center;
     margin-bottom: 25px;
 }
 .question-header h2 {
@@ -365,7 +365,7 @@ html.restoring #restore-overlay {
 /* ---- Three column layout for demographics page ---- */
 .three-column-layout {
     display: grid;
-    grid-template-columns: 1fr minmax(500px, 700px) 1fr;
+    grid-template-columns: 2fr minmax(500px, 700px) 2fr;
     width: 100%;
 }
 
@@ -376,5 +376,17 @@ html.restoring #restore-overlay {
 
 /* Center only the title */
 .title-center {
+    text-align: center;
+}
+
+/* -------- Page 1 (Researcher metadata) only -------- */
+
+/* Left-align all content on page-1 by default */
+#page-1 .question-header {
+    text-align: left;
+}
+
+/* Center ONLY the title on page-1 */
+#page-1 .question-header h1 {
     text-align: center;
 }
