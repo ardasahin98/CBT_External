@@ -81,93 +81,122 @@
         </p>
     </div>
 
-    <!-- QUIZ PAGES (UNCHANGED) -->
+    <!-- QUIZ PAGES (UNCHANGED LOGIC, UPDATED LAYOUT) -->
     <div id="quiz-container" class="page">
+
         <div class="page" id="page-1">
-            <div class="question-header">
-                <h1>Cyclic Behavior Type Assessment Survey</h1>
-            </div>
 
-            <div class="question-header">
-                <label><b>Field of expertise</b></label>
-                <select id="expertise">
-                    <option value="">Select</option>
-                    <option>Geotechnical Engineering</option>
-                    <option>Structural Engineering</option>
-                    <option>Civil Engineering</option>
-                    <option>Seismology</option>
-                    <option>Other</option>
-                </select>
-                <input id="expertise_other" class="other-input" placeholder="Please specify" />
-            </div>
+            <div class="three-column-layout">
 
-            <div class="question-header">
-                <label><b>Affiliation</b></label>
-                <select id="affiliation">
-                    <option value="">Select</option>
-                    <option>Consultant</option>
-                    <option>Contractor</option>
-                    <option>University Researcher</option>
-                    <option>Government</option>
-                    <option>Other Researcher</option>
-                    <option>Student</option>
-                    <option>Other</option>
-                </select>
-                <input id="affiliation_other" class="other-input" placeholder="Please specify" />
-            </div>
+                <!-- LEFT EMPTY COLUMN -->
+                <div class="side-column"></div>
 
-            <div class="question-header">
-                <label><b>Years of experience</b></label>
-                <select id="experience">
-                    <option value="">Select</option>
-                    <option>Less than 5 years</option>
-                    <option>5 to 10 years</option>
-                    <option>10 to 20 years</option>
-                    <option>More than 30 years</option>
-                </select>
-            </div>
+                <!-- CENTER COLUMN -->
+                <div class="center-column">
 
-            <div class="question-header">
-                <label><b>Project involved (select all that apply)</b></label>
+                    <!-- TITLE (CENTERED ONLY) -->
+                    <div class="question-header title-center">
+                        <h1>Cyclic Behavior Type Assessment Survey</h1>
+                    </div>
 
-                <div id="project-checkbox-group" class="checkbox-group">
-                    <label><input type="checkbox" value="Transportation infrastructure (bridges, roads)"> Transportation infrastructure (bridges, roads)</label>
-                    <label><input type="checkbox" value="Dams, embankments or levees"> Dams, embankments or levees</label>
-                    <label><input type="checkbox" value="Critical facilities (e.g., hospitals)"> Critical facilities (e.g., hospitals)</label>
-                    <label><input type="checkbox" value="Building foundations (deep or shallow)"> Building foundations (deep or shallow)</label>
-                    <label><input type="checkbox" value="Offshore structures"> Offshore structures</label>
-                    <label><input type="checkbox" value="Ports or waterfront structures"> Ports or waterfront structures</label>
-                    <label><input type="checkbox" value="Nuclear energy facilities"> Nuclear energy facilities</label>
-                    <label><input type="checkbox" value="Distributed infrastructure systems"> Distributed infrastructure systems</label>
-                    <label><input type="checkbox" value="Pipelines"> Pipelines</label>
-                    <label><input type="checkbox" value="Other lifelines"> Other lifelines</label>
-                    <label><input type="checkbox" value="Other" id="project_other_checkbox"> Other</label>
+                    <!-- FIELD OF EXPERTISE -->
+                    <div class="question-header">
+                        <label><b>Field of expertise</b></label>
+                        <select id="expertise">
+                            <option value="">Select</option>
+                            <option>Geotechnical Engineering</option>
+                            <option>Structural Engineering</option>
+                            <option>Civil Engineering</option>
+                            <option>Seismology</option>
+                            <option>Other</option>
+                        </select>
+                        <input id="expertise_other" class="other-input" placeholder="Please specify" />
+                    </div>
+
+                    <!-- AFFILIATION -->
+                    <div class="question-header">
+                        <label><b>Affiliation</b></label>
+                        <select id="affiliation">
+                            <option value="">Select</option>
+                            <option>Consultant</option>
+                            <option>Contractor</option>
+                            <option>University Researcher</option>
+                            <option>Government</option>
+                            <option>Other Researcher</option>
+                            <option>Student</option>
+                            <option>Other</option>
+                        </select>
+                        <input id="affiliation_other" class="other-input" placeholder="Please specify" />
+                    </div>
+
+                    <!-- EXPERIENCE -->
+                    <div class="question-header">
+                        <label><b>Years of experience</b></label>
+                        <select id="experience">
+                            <option value="">Select</option>
+                            <option>Less than 5 years</option>
+                            <option>5 to 10 years</option>
+                            <option>10 to 20 years</option>
+                            <option>More than 30 years</option>
+                        </select>
+                    </div>
+
+                    <!-- PROJECTS -->
+                    <div class="question-header">
+                        <label><b>Project involved (select all that apply)</b></label>
+
+                        <div id="project-checkbox-group" class="checkbox-group">
+                            <label><input type="checkbox" value="Transportation infrastructure (bridges, roads)"> Transportation infrastructure (bridges, roads)</label>
+                            <label><input type="checkbox" value="Dams, embankments or levees"> Dams, embankments or levees</label>
+                            <label><input type="checkbox" value="Critical facilities (e.g., hospitals)"> Critical facilities (e.g., hospitals)</label>
+                            <label><input type="checkbox" value="Building foundations (deep or shallow)"> Building foundations (deep or shallow)</label>
+                            <label><input type="checkbox" value="Offshore structures"> Offshore structures</label>
+                            <label><input type="checkbox" value="Ports or waterfront structures"> Ports or waterfront structures</label>
+                            <label><input type="checkbox" value="Nuclear energy facilities"> Nuclear energy facilities</label>
+                            <label><input type="checkbox" value="Distributed infrastructure systems"> Distributed infrastructure systems</label>
+                            <label><input type="checkbox" value="Pipelines"> Pipelines</label>
+                            <label><input type="checkbox" value="Other lifelines"> Other lifelines</label>
+                            <label><input type="checkbox" value="Other" id="project_other_checkbox"> Other</label>
+                        </div>
+
+                        <input id="project_other" class="other-input" placeholder="Please specify" />
+                    </div>
+
+                    <!-- REFERRAL -->
+                    <div class="question-header">
+                        <label><b>Where did you hear about this survey?</b></label>
+                        <select id="referral">
+                            <option value="">Select</option>
+                            <option>NGL Webinar</option>
+                            <option>NGL Project Homepage</option>
+                            <option>NGL Modeling Teams Meeting</option>
+                            <option>Other</option>
+                        </select>
+                        <input id="referral_other" class="other-input" placeholder="Please specify" />
+                    </div>
+
+                    <!-- NAVIGATION -->
+                    <div class="navigation-buttons">
+                        <button onclick="navigatePage(0)">Next</button>
+                    </div>
+
+                    <!-- TUTORIAL -->
+                    <div class="tutorial-btn-wrapper">
+                        <button type="button" onclick="openTutorial()" class="tutorial-btn">
+                            Tutorial to navigate website
+                        </button>
+                    </div>
+
                 </div>
 
-                <input id="project_other" class="other-input" placeholder="Please specify" />
+                <!-- RIGHT EMPTY COLUMN -->
+                <div class="side-column"></div>
+
             </div>
 
-            <div class="question-header">
-                <label><b>Where did you hear about this survey?</b></label>
-                <select id="referral">
-                    <option value="">Select</option>
-                    <option>NGL Webinar</option>
-                    <option>NGL Project Homepage</option>
-                    <option>NGL Modeling Teams Meeting</option>
-                    <option>Other</option>
-                </select>
-                <input id="referral_other" class="other-input" placeholder="Please specify" />
-            </div>
-
-            <div class="navigation-buttons">
-                <button onclick="navigatePage(0)">Next</button>
-            </div>
-            <div class="tutorial-btn-wrapper">
-                <button type="button" onclick="openTutorial()" class="tutorial-btn">
-                    Tutorial to navigate website
-                </button>
-            </div>
         </div>
+
+    </div>
 
         <!-- Dynamic questions injected here -->
 

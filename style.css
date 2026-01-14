@@ -30,7 +30,7 @@ body {
 
 /* ---- Header ---- */
 .question-header {
-    text-align: center;
+    text-align: left;
     margin-bottom: 25px;
 }
 .question-header h2 {
@@ -349,7 +349,7 @@ html.restoring #restore-overlay {
 .checkbox-group {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
     margin-top: 8px;
 }
@@ -360,4 +360,26 @@ html.restoring #restore-overlay {
     gap: 8px;
     font-size: 14px;
     cursor: pointer;
+}
+
+/* ---- Three column layout for demographics page ---- */
+.three-column-layout {
+    display: grid;
+    grid-template-columns: 1fr minmax(500px, 700px) 1fr;
+    width: 100%;
+}
+
+/* Empty left & right columns */
+.side-column {
+    /* intentionally empty */
+}
+
+/* Center content */
+.center-column {
+    text-align: left;
+}
+
+/* Center only the title */
+.title-center {
+    text-align: center;
 }
