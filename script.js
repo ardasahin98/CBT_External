@@ -31,7 +31,9 @@ let lastRenderedIndex = -1;
 let researcherMeta = {};
 
 // True if we are coming back from tutorial and need to restore a question index
-const isReturningFromTutorial = sessionStorage.getItem("tutorialReturnIndex") !== null;
+function isReturningFromTutorial() {
+    return sessionStorage.getItem("tutorialReturnIndex") !== null;
+}
 
 // Email-only session info (if user used your email login)
 let emailOnlySessionEmail = null;
@@ -131,7 +133,7 @@ auth.onAuthStateChanged(async (user) => {
         }
 
         // B) Returning from tutorial → let restore logic handle UI
-        if (isReturningFromTutorial) {
+        if (isReturningFromTutorial()) {
             return;
         }
 
@@ -984,8 +986,6 @@ async function autoResumeEmailOnlySession() {
 
     if (cachedQuestions.length === 0) {
         await loadQuestions(); // loadQuestions() calls renderPage(-1) which activates page-1
-    } else {
-        renderPage(-1);
     }
 
     await saveProgressToFirestore();
