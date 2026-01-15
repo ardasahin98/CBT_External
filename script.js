@@ -501,6 +501,16 @@ function renderPage(index) {
                                 >
                             </div>
 
+                            <div style="margin-bottom:10px;">
+                                <select id="strain_pref_${question.questionNumber}" class="strain-selector">
+                                    <option value="3_Strain_Cycle">3% Strain</option>
+                                    <option value="4_Strain_Cycle">4% Strain</option>
+                                    <option value="5_Strain_Cycle">5% Strain</option>
+                                    <option value="6_Strain_Cycle">6% Strain</option>
+                                    <option value="Last_Cycle">Last Cycle</option>
+                                </select>
+                            </div>
+
                             <span 
                                 id="max_stddev_${question.questionNumber}" 
                                 style="font-size:14px; color:#888; margin-top:5px;"
@@ -545,6 +555,8 @@ function renderPage(index) {
         const maxStdSpan = document.getElementById(`max_stddev_${question.questionNumber}`);
 
         const strainSelect = document.getElementById(`strain_select_${question.questionNumber}`);
+
+        const savedStrainPref = responses[question.questionNumber]?.strain_pref || "5_Strain_Cycle";
 
         strainSelect.value = "5_Strain_Cycle";
 
@@ -814,11 +826,11 @@ function saveAndNext(q) {
 function saveAnswer(q) {
     if (!responses[q]) responses[q] = {};
 
-    // single checkbox for "data not usable"
     const unusableCheckbox = document.querySelector(`input[name="behavior_${q}"]`);
     const slider = document.getElementById(`slider_${q}`);
     const std = document.getElementById(`stddev_${q}`);
     const com = document.getElementById(`comments_${q}`);
+    const strainPref = document.getElementById(`strain_pref_${q}`);
 
     const isUnusable = unusableCheckbox && unusableCheckbox.checked;
 
@@ -831,7 +843,9 @@ function saveAnswer(q) {
         responses[q].slider = slider ? slider.value : "";
         responses[q].stddev = std ? std.value : "";
     }
+
     responses[q].comments = com ? com.value : "";
+    responses[q].strain_pref = strainPref ? strainPref.value : "";
 }
 
 function loadSavedAnswer(q) {
@@ -1047,6 +1061,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderPage(Number.isFinite(idx) ? idx : -1);
 });
 
+const strainPrefSelect = document.getElementById(`strain_pref_${question.questionNumber}`);
+
+strainPrefSelect.addEventListener("change", () => {
+    if (!responses[question.questionNumber]) {
+        responses[question.questionNumber] = {};
+    }
+    responses[question.questionNumber].strain_pref = strainPrefSelect.value;
+    saveProgressToFirestore();
+});
 
 
 // function showRestoreOverlay() {
