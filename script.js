@@ -509,7 +509,7 @@ function renderPage(index) {
 
                             </div>
                             <div style="margin-bottom:10px;">
-                                <label><b>Strain level basis</b></label>
+                                <label><b>Strain Level Basis</b></label>
                                 <select id="strain_pref_${question.questionNumber}" class="strain-selector">
                                     <option value="3_Strain_Cycle">3% Strain</option>
                                     <option value="4_Strain_Cycle">4% Strain</option>
@@ -593,7 +593,20 @@ function renderPage(index) {
 
             imgEl.src = imgPath;
         }
+        const strainPrefSelect =
+            document.getElementById(`strain_pref_${question.questionNumber}`);
 
+        // restore saved value (or default to 5%)
+        strainPrefSelect.value = savedStrainPref;
+
+        // auto-save on change
+        strainPrefSelect.addEventListener("change", () => {
+            if (!responses[question.questionNumber]) {
+                responses[question.questionNumber] = {};
+            }
+            responses[question.questionNumber].strain_pref = strainPrefSelect.value;
+            saveProgressToFirestore();
+        });
         function updateMaxStddevDisplay() {
             const mean = parseFloat(slider.value);
             if (!isNaN(mean) && mean > 0 && mean < 1) {
@@ -1062,16 +1075,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionStorage.removeItem("tutorialReturnIndex");
 
     renderPage(Number.isFinite(idx) ? idx : -1);
-});
-
-const strainPrefSelect = document.getElementById(`strain_pref_${question.questionNumber}`);
-
-strainPrefSelect.addEventListener("change", () => {
-    if (!responses[question.questionNumber]) {
-        responses[question.questionNumber] = {};
-    }
-    responses[question.questionNumber].strain_pref = strainPrefSelect.value;
-    saveProgressToFirestore();
 });
 
 
