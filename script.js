@@ -506,9 +506,10 @@ function renderPage(index) {
                                 style="font-size:14px; color:#888; margin-top:5px;"
                             ></span>
                             <div>
-                            
+
                             </div>
                             <div style="margin-bottom:10px;">
+                                <label><b>Strain level basis</b></label>
                                 <select id="strain_pref_${question.questionNumber}" class="strain-selector">
                                     <option value="3_Strain_Cycle">3% Strain</option>
                                     <option value="4_Strain_Cycle">4% Strain</option>
