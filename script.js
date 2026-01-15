@@ -501,6 +501,11 @@ function renderPage(index) {
                                 >
                             </div>
 
+                            <span 
+                                id="max_stddev_${question.questionNumber}" 
+                                style="font-size:14px; color:#888; margin-top:5px;"
+                            ></span>
+
                             <div style="margin-bottom:10px;">
                                 <select id="strain_pref_${question.questionNumber}" class="strain-selector">
                                     <option value="3_Strain_Cycle">3% Strain</option>
@@ -510,11 +515,6 @@ function renderPage(index) {
                                     <option value="Last_Cycle">Last Cycle</option>
                                 </select>
                             </div>
-
-                            <span 
-                                id="max_stddev_${question.questionNumber}" 
-                                style="font-size:14px; color:#888; margin-top:5px;"
-                            ></span>
 
                         </div>
                     </div>
