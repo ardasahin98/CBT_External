@@ -941,7 +941,16 @@ function downloadExcel() {
         excelData.push([k, researcherMeta[k]]);
     });
     excelData.push([]);
-    excelData.push(["Question #", "Behavior", "Slider", "Std Dev", "Comments"]);
+
+    // UPDATED HEADER (added strain basis)
+    excelData.push([
+        "Question #",
+        "Behavior",
+        "Slider",
+        "Std Dev",
+        "Strain Level Basis",
+        "Comments"
+    ]);
 
     // Loop through each question
     Object.keys(responses).forEach(q => {
@@ -950,6 +959,7 @@ function downloadExcel() {
             responses[q].behavior || "",
             responses[q].slider || "",
             responses[q].stddev || "",
+            responses[q].strain_pref || "",   // <-- NEW
             responses[q].comments || ""
         ]);
     });
@@ -963,9 +973,9 @@ function downloadExcel() {
 
     // Generate file name
     const safeName = (currentUser?.email || "unknown")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
 
     const fileName = `responses_${safeName}.xlsx`;
 
